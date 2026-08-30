@@ -1,6 +1,6 @@
 /* Bird Tower Defense - Objects & Entities (Full GDD Engine Support) */
 
-import { BIRD_TEMPLATES, MONSTER_TEMPLATES, PLACEMENT_COSTS, GRADE_COLORS } from '../state.js';
+import { BIRD_TEMPLATES, MONSTER_TEMPLATES, PLACEMENT_COSTS, GRADE_COLORS, getEnhanceMult } from '../state.js';
 import { drawBirdCanvas, soundEngine } from '../assets.js';
 
 // --- 몬스터 개체 클래스 ---
@@ -220,6 +220,7 @@ export class Tower {
     this.y = y;
     this.runLevel = runLevel; // 인런 레벨 (1 ~ 3/4/5)
     this.buff = birdData.buff || null;
+    this.enhanceLevel = birdData.enhanceLevel || 0;
 
     const template = BIRD_TEMPLATES[birdId];
     this.template = template;
@@ -257,7 +258,19 @@ export class Tower {
       if (this.buff.type === 'sight') range *= (1 + this.buff.val);
     }
 
-    return { ...lvlInfo, atk, interval, range };
+    const enhanceMult = getEnhanceMult(this.enhanceLevel);
+    atk *= enhanceMult;
+
+    const stats = { ...lvlInfo, atk, interval, range, enhanceMult };
+    const dmgKeys = [
+      'atkMin', 'atkMax', 'burnDmg', 'poisonDmg', 'explodeDmg', 'chickAtk',
+      'deathExplode', 'turretAtk', 'dotDmg', 'lavaDmg', 'tAtk', 'trDmg',
+      'gasDmg', 'globalBurn', 'atkPct'
+    ];
+    dmgKeys.forEach(key => {
+      if (typeof stats[key] === 'number') stats[key] *= enhanceMult;
+    });
+    return stats;
   }
 
   update(dt, gameEngine) {

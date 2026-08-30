@@ -6,6 +6,8 @@ import { GameEngine } from './game/engine.js';
 import { FarmSystem } from './farm.js';
 import { HatcherySystem } from './hatchery.js';
 import { InventorySystem } from './inventory.js';
+import { DeckSystem } from './deck.js';
+import { EnhanceSystem } from './enhance.js';
 import { ShopSystem } from './shop.js';
 import { AdminSystem } from './admin.js';
 
@@ -13,6 +15,8 @@ let gameEngine;
 let farmSystem;
 let hatcherySystem;
 let inventorySystem;
+let deckSystem;
+let enhanceSystem;
 let shopSystem;
 let adminSystem;
 
@@ -33,6 +37,7 @@ function initNavigation() {
       if (targetId === 'tab-farm' && farmSystem) farmSystem.render();
       else if (targetId === 'tab-hatchery' && hatcherySystem) hatcherySystem.render();
       else if (targetId === 'tab-inventory' && inventorySystem) inventorySystem.render();
+      else if (targetId === 'tab-deck' && deckSystem) deckSystem.render();
       else if (targetId === 'tab-shop' && shopSystem) shopSystem.render();
 
       if (hatcherySystem) {
@@ -62,7 +67,7 @@ function renderDefenseDeck() {
   const state = stateManager.state;
 
   if (state.deck.length === 0) {
-    deckContainer.innerHTML = '<p class="deck-empty-hint">도감/덱 탭에서 새를 덱에 장착하세요</p>';
+    deckContainer.innerHTML = '<p class="deck-empty-hint">덱 탭에서 새를 장착하세요</p>';
     return;
   }
 
@@ -186,6 +191,7 @@ function subscribeStateChanges() {
     if (elFeathers) elFeathers.textContent = state.feathers.toLocaleString();
 
     renderDefenseDeck();
+    if (deckSystem) deckSystem.render();
   });
 }
 
@@ -194,6 +200,7 @@ window.addEventListener('DOMContentLoaded', () => {
   farmSystem = new FarmSystem();
   hatcherySystem = new HatcherySystem();
   inventorySystem = new InventorySystem();
+  deckSystem = new DeckSystem();
   shopSystem = new ShopSystem();
   adminSystem = new AdminSystem();
 
@@ -208,6 +215,7 @@ window.addEventListener('DOMContentLoaded', () => {
   farmSystem.init();
   hatcherySystem.init();
   inventorySystem.init();
+  deckSystem.init();
   shopSystem.init();
   adminSystem.init();
 

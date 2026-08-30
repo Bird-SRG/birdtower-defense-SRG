@@ -27,6 +27,45 @@ export const GRADE_NAMES = {
   [GRADES.MYTHIC]: '신화'
 };
 
+export const MAX_DECK_SIZE = 5;
+
+// 등급이 높을수록 DPS를 더 크게 올림 (기본 공격 + 스킬 피해)
+export const GRADE_DPS_MULT = {
+  [GRADES.NORMAL]: 1.25,
+  [GRADES.UNCOMMON]: 1.45,
+  [GRADES.RARE]: 1.70,
+  [GRADES.EPIC]: 2.00,
+  [GRADES.LEGENDARY]: 2.40,
+  [GRADES.MYTHIC]: 2.90
+};
+
+export const ENHANCE_MAX = 5;
+export const ENHANCE_COPY_COST = 2;
+export const ENHANCE_ATK_BONUS = 0.18;
+
+export const ENHANCE_FEATHER_BASE = {
+  [GRADES.NORMAL]: 30,
+  [GRADES.UNCOMMON]: 80,
+  [GRADES.RARE]: 200,
+  [GRADES.EPIC]: 500,
+  [GRADES.LEGENDARY]: 1500,
+  [GRADES.MYTHIC]: 5000
+};
+
+export function getEnhanceMult(enhanceLevel = 0) {
+  return 1 + (enhanceLevel || 0) * ENHANCE_ATK_BONUS;
+}
+
+export function getEnhanceFeatherCost(grade, enhanceLevel = 0) {
+  const base = ENHANCE_FEATHER_BASE[grade] || 30;
+  return base * (enhanceLevel + 1);
+}
+
+export function formatEnhanceStars(enhanceLevel = 0) {
+  const filled = Math.max(0, Math.min(ENHANCE_MAX, enhanceLevel || 0));
+  return '★'.repeat(filled) + '☆'.repeat(ENHANCE_MAX - filled);
+}
+
 // 등급별 필드 배치 비용 (코인)
 export const PLACEMENT_COSTS = {
   [GRADES.NORMAL]: 15,
@@ -493,6 +532,32 @@ export const BIRD_TEMPLATES = {
   }
 };
 
+const DPS_DAMAGE_KEYS = [
+  'atk', 'atkMin', 'atkMax', 'burnDmg', 'poisonDmg', 'explodeDmg',
+  'chickAtk', 'deathExplode', 'turretAtk', 'dotDmg', 'lavaDmg',
+  'tAtk', 'trDmg', 'gasDmg', 'globalBurn', 'atkPct'
+];
+
+function scaleDamageValue(value, mult) {
+  if (typeof value !== 'number' || value === 0) return value;
+  const scaled = value * mult;
+  if (value < 1) return Math.round(scaled * 100) / 100;
+  if (scaled < 10) return Math.round(scaled * 10) / 10;
+  return Math.round(scaled);
+}
+
+(function applyGradeDpsBoost() {
+  for (const bird of Object.values(BIRD_TEMPLATES)) {
+    const mult = GRADE_DPS_MULT[bird.grade] || 1;
+    if (mult === 1) continue;
+    bird.levels.forEach(lvl => {
+      DPS_DAMAGE_KEYS.forEach(key => {
+        if (key in lvl) lvl[key] = scaleDamageValue(lvl[key], mult);
+      });
+    });
+  }
+})();
+
 // 8. 알 등급별 결과 확률표
 export const EGG_GACHA_PROBS = {
   [GRADES.NORMAL]: { [GRADES.NORMAL]: 0.70, [GRADES.UNCOMMON]: 0.25, [GRADES.RARE]: 0.045, [GRADES.EPIC]: 0.005, [GRADES.LEGENDARY]: 0, [GRADES.MYTHIC]: 0 },
@@ -644,11 +709,11 @@ const DEFAULT_STATE = {
   level: 1,
   exp: 0,
   
-  // 플레이어가 보유한 새 목록 ({ id, birdId, level: 1, count: 1, buff: null })
+  // 플레이어가 보유한 새 목록 ({ id, birdId, level: 1, count: 1, enhanceLevel: 0, buff: null })
   ownedBirds: [
-    { id: 'sparrow_init', birdId: 'sparrow', level: 1, count: 1, buff: null }
+    { id: 'sparrow_init', birdId: 'sparrow', level: 1, count: 1, enhanceLevel: 0, buff: null }
   ],
-  deck: ['sparrow'], // 전투 덱 (최대 6종 선택)
+  deck: ['sparrow'], // 전투 덱 (최대 5종, 서로 다른 새)
   
   inventory: {
     eggs: { normal: 1, uncommon: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 },
@@ -707,6 +772,14 @@ export class StateManager {
         const loaded = JSON.parse(saved);
         this.state = { ...DEFAULT_STATE, ...loaded };
         delete this.state.gems;
+        if (Array.isArray(this.state.deck)) {
+          this.state.deck = [...new Set(this.state.deck)].slice(0, MAX_DECK_SIZE);
+        }
+        if (Array.isArray(this.state.ownedBirds)) {
+          this.state.ownedBirds.forEach(b => {
+            if (typeof b.enhanceLevel !== 'number') b.enhanceLevel = 0;
+          });
+        }
         if (this.state.farmPlots) {
           const defaultCosts = [0, 0, 0, 0, 100, 200, 300, 500];
           this.state.farmPlots.forEach((p, idx) => {
@@ -777,6 +850,7 @@ export class StateManager {
           birdId: bKey,
           level: 1,
           count: countPerBird,
+          enhanceLevel: 0,
           buff: null
         });
       }
@@ -813,6 +887,7 @@ export class StateManager {
         birdId,
         level: 1,
         count: 1,
+        enhanceLevel: 0,
         buff: null
       });
     }
@@ -827,11 +902,31 @@ export class StateManager {
       if (this.state.deck.length <= 1) return false;
       this.state.deck.splice(idx, 1);
     } else {
-      if (this.state.deck.length >= 6) return false;
+      if (this.state.deck.includes(birdId)) return false;
+      if (this.state.deck.length >= MAX_DECK_SIZE) return false;
       this.state.deck.push(birdId);
     }
     this.notify();
     return true;
+  }
+
+  enhanceBird(birdId) {
+    const bird = this.state.ownedBirds.find(b => b.birdId === birdId);
+    const template = BIRD_TEMPLATES[birdId];
+    if (!bird || !template) return { ok: false, reason: 'missing' };
+
+    const enhance = bird.enhanceLevel || 0;
+    if (enhance >= ENHANCE_MAX) return { ok: false, reason: 'max' };
+    if (bird.count < ENHANCE_COPY_COST + 1) return { ok: false, reason: 'copies' };
+
+    const cost = getEnhanceFeatherCost(template.grade, enhance);
+    if (this.state.feathers < cost) return { ok: false, reason: 'feathers' };
+
+    this.state.feathers -= cost;
+    bird.count -= ENHANCE_COPY_COST;
+    bird.enhanceLevel = enhance + 1;
+    this.notify();
+    return { ok: true };
   }
 
   applyBuffToBird(birdId, buff) {

@@ -1,13 +1,12 @@
-/* Bird Tower Defense - Roster, Deck & Monster Codex (Full GDD Specification) */
+/* Bird Tower Defense - Bird & Monster Codex */
 
-import { stateManager, BIRD_TEMPLATES, MONSTER_TEMPLATES, GRADES, GRADE_NAMES, GRADE_COLORS } from './state.js';
+import { stateManager, BIRD_TEMPLATES, MONSTER_TEMPLATES, GRADE_NAMES, GRADE_COLORS } from './state.js';
 import { getBirdSVG } from './assets.js';
 
 export class InventorySystem {
   constructor() {
     this.birdGrid = document.getElementById('bird-grid');
     this.detailPanel = document.getElementById('bird-detail-panel');
-    this.deckPreviewRow = document.getElementById('active-deck-preview');
     this.monsterCodexContainer = document.getElementById('monster-codex-grid');
 
     this.selectedBirdId = null;
@@ -20,7 +19,7 @@ export class InventorySystem {
   }
 
   initEvents() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
+    const filterBtns = document.querySelectorAll('#tab-inventory .filter-btn');
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
@@ -29,21 +28,10 @@ export class InventorySystem {
         this.renderBirdList();
       });
     });
-
-    const btnEquip = document.getElementById('btn-equip-bird');
-    if (btnEquip) {
-      btnEquip.addEventListener('click', () => {
-        if (!this.selectedBirdId) return;
-        stateManager.toggleDeck(this.selectedBirdId);
-        this.render();
-        this.showBirdDetails(this.selectedBirdId);
-      });
-    }
   }
 
   render() {
     this.renderBirdList();
-    this.renderDeckPreview();
     this.renderMonsterCodex();
   }
 
@@ -60,10 +48,9 @@ export class InventorySystem {
     birdKeys.forEach(birdId => {
       const template = BIRD_TEMPLATES[birdId];
       const owned = state.ownedBirds.find(b => b.birdId === birdId);
-      const isEquipped = state.deck.includes(birdId);
 
       const card = document.createElement('div');
-      card.className = `bird-card glass-panel ${isEquipped ? 'equipped' : ''}`;
+      card.className = `bird-card glass-panel ${this.selectedBirdId === birdId ? 'selected' : ''}`;
       if (!owned) card.style.opacity = '0.35';
 
       card.innerHTML = `
@@ -74,24 +61,10 @@ export class InventorySystem {
       `;
 
       card.addEventListener('click', () => {
-        if (owned) this.showBirdDetails(birdId);
-        else alert('아직 미획득한 새입니다. 상점에서 알을 구하세요!');
+        this.showBirdDetails(birdId);
       });
 
       this.birdGrid.appendChild(card);
-    });
-  }
-
-  renderDeckPreview() {
-    if (!this.deckPreviewRow) return;
-    this.deckPreviewRow.innerHTML = '';
-    const state = stateManager.state;
-
-    state.deck.forEach(birdId => {
-      const icon = document.createElement('div');
-      icon.className = 'deck-icon-preview';
-      icon.innerHTML = getBirdSVG(birdId, 32);
-      this.deckPreviewRow.appendChild(icon);
     });
   }
 
@@ -100,7 +73,6 @@ export class InventorySystem {
     const template = BIRD_TEMPLATES[birdId];
     const state = stateManager.state;
     const owned = state.ownedBirds.find(b => b.birdId === birdId);
-    const isEquipped = state.deck.includes(birdId);
 
     if (!this.detailPanel) return;
     this.detailPanel.classList.remove('hidden');
@@ -116,16 +88,13 @@ export class InventorySystem {
     document.getElementById('detail-stat-spd').textContent = lvl1Stats.interval ? lvl1Stats.interval.toFixed(2) + 's' : '-';
     document.getElementById('detail-stat-rng').textContent = lvl1Stats.range || 0;
     document.getElementById('detail-bird-count').textContent = owned ? owned.count : 0;
-    document.getElementById('detail-bird-desc').textContent = template.desc;
+    document.getElementById('detail-bird-desc').textContent = owned
+      ? template.desc
+      : '아직 미획득한 새입니다. 상점에서 알을 구해 부화하세요.';
 
-    const btnEquip = document.getElementById('btn-equip-bird');
-    if (btnEquip) {
-      btnEquip.textContent = isEquipped ? '전투 덱 해제' : '전투 덱 장착';
-      btnEquip.className = `btn w-100 mb-2 ${isEquipped ? 'btn-danger' : 'btn-success'}`;
-    }
+    this.renderBirdList();
   }
 
-  // --- 11-1 몬스터 도감 ---
   renderMonsterCodex() {
     if (!this.monsterCodexContainer) return;
     this.monsterCodexContainer.innerHTML = '';

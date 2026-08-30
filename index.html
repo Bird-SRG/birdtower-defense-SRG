@@ -157,15 +157,11 @@
         </div>
       </section>
 
-      <!-- 4. 도감 & 전투 덱 탭 -->
+      <!-- 4. 도감 탭 -->
       <section id="tab-inventory" class="tab-pane">
         <div class="inventory-container">
           <div class="inventory-header-row">
-            <h2>🦅 새 도감 & 6마리 전투 덱 설정</h2>
-            <div class="deck-setup-info">
-              <span>장착 중인 전투 덱:</span>
-              <div id="active-deck-preview" class="deck-preview-row"></div>
-            </div>
+            <h2>🦅 새 도감</h2>
           </div>
           <div class="inventory-filters">
             <button class="filter-btn active" data-grade="all">전체</button>
@@ -196,9 +192,6 @@
                 <div class="stat-description">
                   <p id="detail-bird-desc">기본적인 단일 공격형 새입니다.</p>
                 </div>
-                <div class="detail-actions">
-                  <button id="btn-equip-bird" class="btn btn-success w-100">전투 덱 장착</button>
-                </div>
               </div>
             </div>
           </div>
@@ -213,7 +206,59 @@
         </div>
       </section>
 
-      <!-- 5. 상점 탭 (GDD 6-1 6칸 진열) -->
+      <!-- 5. 전투 덱 탭 -->
+      <section id="tab-deck" class="tab-pane">
+        <div class="deck-builder-container">
+          <div class="deck-builder-header">
+            <div>
+              <h2>⚔️ 전투 덱</h2>
+              <p>보유한 새 중에서 서로 다른 새를 최대 5마리까지 장착하세요.</p>
+            </div>
+            <div class="deck-count-badge">장착 <span id="deck-count-label">1 / 5</span></div>
+          </div>
+          <div id="deck-slots-row" class="deck-builder-slots"></div>
+          <h3 class="deck-owned-title">보유 새</h3>
+          <div class="inventory-filters">
+            <button class="filter-btn active" data-grade="all">전체</button>
+            <button class="filter-btn" data-grade="normal">일반</button>
+            <button class="filter-btn" data-grade="uncommon">고급</button>
+            <button class="filter-btn" data-grade="rare">레어</button>
+            <button class="filter-btn" data-grade="epic">에픽</button>
+            <button class="filter-btn" data-grade="legendary">전설</button>
+            <button class="filter-btn" data-grade="mythic">신화</button>
+          </div>
+          <div id="owned-bird-grid" class="bird-grid"></div>
+        </div>
+      </section>
+
+      <!-- 6. 강화소 탭 -->
+      <section id="tab-enhance" class="tab-pane">
+        <div class="enhance-container">
+          <div class="enhance-header">
+            <div>
+              <h2>⚒️ 강화소</h2>
+              <p>같은 새 2마리를 합성하고 깃털을 사용해 영구 강화합니다. 단계마다 전투 피해가 18% 오르며, 최대 +5까지 강화할 수 있습니다.</p>
+            </div>
+          </div>
+          <div class="inventory-filters">
+            <button class="filter-btn active" data-grade="all">전체</button>
+            <button class="filter-btn" data-grade="normal">일반</button>
+            <button class="filter-btn" data-grade="uncommon">고급</button>
+            <button class="filter-btn" data-grade="rare">레어</button>
+            <button class="filter-btn" data-grade="epic">에픽</button>
+            <button class="filter-btn" data-grade="legendary">전설</button>
+            <button class="filter-btn" data-grade="mythic">신화</button>
+          </div>
+          <div class="inventory-layout">
+            <div id="enhance-bird-grid" class="bird-grid"></div>
+            <div id="enhance-detail-panel" class="bird-detail-panel glass-panel">
+              <p class="enhance-placeholder">강화할 새를 선택하세요.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. 상점 탭 (GDD 6-1 6칸 진열) -->
       <section id="tab-shop" class="tab-pane">
         <div class="shop-container">
           <div class="shop-header" style="display:flex; justify-content:space-between; align-items:center;">
@@ -229,7 +274,7 @@
         </div>
       </section>
 
-      <!-- 6. 어드민 패널 탭 -->
+      <!-- 8. 어드민 패널 탭 -->
       <section id="tab-admin" class="tab-pane">
         <div class="admin-container">
           <div class="admin-header">
@@ -315,7 +360,15 @@
         </button>
         <button class="nav-tab" data-target="tab-inventory">
           <span class="tab-icon">🦅</span>
-          <span class="tab-text">도감/덱</span>
+          <span class="tab-text">도감</span>
+        </button>
+        <button class="nav-tab" data-target="tab-deck">
+          <span class="tab-icon">⚔️</span>
+          <span class="tab-text">덱</span>
+        </button>
+        <button class="nav-tab" data-target="tab-enhance">
+          <span class="tab-icon">⚒️</span>
+          <span class="tab-text">강화소</span>
         </button>
         <button class="nav-tab" data-target="tab-shop">
           <span class="tab-icon">🛒</span>
