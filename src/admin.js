@@ -28,6 +28,26 @@ export class AdminSystem {
       });
     }
 
+    // 1-2. 모든 등급 씨앗 상자 10개 획득
+    const btnAddSeedBoxes = document.getElementById('admin-btn-add-seedboxes');
+    if (btnAddSeedBoxes) {
+      btnAddSeedBoxes.addEventListener('click', () => {
+        stateManager.addSeedBoxesOfAllGrades(10);
+        soundEngine.playHatch();
+        this.showNotice('🎁 모든 등급의 씨앗 상자 10개(총 60개)를 획득했습니다!');
+      });
+    }
+
+    // 1-3. 이상한 보석 지급
+    const btnAddGems = document.getElementById('admin-btn-add-gems');
+    if (btnAddGems) {
+      btnAddGems.addEventListener('click', () => {
+        stateManager.addStrangeGems(100);
+        soundEngine.playCoin();
+        this.showNotice('💜 이상한 보석 100개를 획득했습니다!');
+      });
+    }
+
     // 2. 깃털 무한개 즉시 획득
     const btnInfFeathers = document.getElementById('admin-btn-inf-feathers');
     if (btnInfFeathers) {
@@ -44,8 +64,7 @@ export class AdminSystem {
       btnAddCoins.addEventListener('click', () => {
         if (this.gameEngine) {
           this.gameEngine.inRunCoins += 10000;
-          const elCoins = document.getElementById('player-coins');
-          if (elCoins) elCoins.textContent = this.gameEngine.inRunCoins.toLocaleString();
+          this.gameEngine.updateUI();
           soundEngine.playCoin();
           this.showNotice('🪙 인런 코인 +10,000을 획득했습니다!');
         } else {
@@ -84,14 +103,20 @@ export class AdminSystem {
       });
     }
 
-    // 6. 현재 웨이브 강제 클리어
+    // 6. 현재 웨이브 종료 후 다음 웨이브로 진행
     const btnSkipWave = document.getElementById('admin-btn-skip-wave');
     if (btnSkipWave) {
       btnSkipWave.addEventListener('click', () => {
-        if (this.gameEngine) {
-          this.gameEngine.enemies = [];
-          this.gameEngine.enemiesToSpawn = [];
-          this.showNotice('⚡ 현재 웨이브를 강제 클리어 처리했습니다!');
+        if (!this.gameEngine) return;
+        if (!this.gameEngine.isWaveActive) {
+          this.showNotice('⚠️ 진행 중인 웨이브가 없습니다. 먼저 전투를 시작하세요.');
+          return;
+        }
+        this.gameEngine.forceNextWave();
+        if (this.gameEngine.isWaveActive) {
+          this.showNotice(`⚡ 웨이브 ${this.gameEngine.currentWave}(으)로 넘어갔습니다!`);
+        } else {
+          this.showNotice('🎉 마지막 웨이브를 종료하여 스테이지를 클리어했습니다!');
         }
       });
     }

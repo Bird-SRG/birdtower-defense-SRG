@@ -34,6 +34,9 @@ while ($listener.IsListening) {
             $bytes = [System.IO.File]::ReadAllBytes($filePath)
             $res.ContentType = $contentType
             $res.ContentLength64 = $bytes.Length
+            # 개발 서버: 브라우저가 JS/CSS를 stale하게 캐싱해서 수정사항이 반영 안 되는 문제 방지
+            $res.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate")
+            $res.Headers.Add("Pragma", "no-cache")
             $res.OutputStream.Write($bytes, 0, $bytes.Length)
         } else {
             $res.StatusCode = 404

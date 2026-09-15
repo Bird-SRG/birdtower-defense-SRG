@@ -129,19 +129,55 @@ export const BIRD_VISUALS = {
   hen: { body: '#ffffff', wing: '#e2e8f0', belly: '#feebc8', beak: '#dd6b20' }
 };
 
+// SVG 내부 참조용 고유 ID 생성기
+// (같은 id가 문서에 중복되면 브라우저가 첫 번째 정의만 사용하고,
+//  그 정의를 가진 탭이 다시 렌더링될 때 참조가 끊겨 이미지가 사라진다)
+let svgUidCounter = 0;
+function nextSvgUid(prefix) {
+  svgUidCounter++;
+  return `${prefix}-${svgUidCounter}`;
+}
+
 // --- Egg SVG Renderer ---
 export function getEggSVG(type, size = 40) {
   const gradeColor = GRADE_COLORS[type] || '#ffffff';
+  const gradId = nextSvgUid(`egg-grad-${type}`);
   return `
     <svg width="${size}" height="${size * 1.2}" viewBox="0 0 40 48" style="display:inline-block; overflow:visible; filter: drop-shadow(0 0 6px ${gradeColor});">
       <defs>
-        <radialGradient id="egg-grad-${type}" cx="35%" cy="35%" r="65%">
+        <radialGradient id="${gradId}" cx="35%" cy="35%" r="65%">
           <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
           <stop offset="50%" stop-color="${gradeColor}"/>
           <stop offset="100%" stop-color="#1a202c"/>
         </radialGradient>
       </defs>
-      <path d="M20,4 C30,4 36,20 36,32 C36,42 29,46 20,46 C11,46 4,42 4,32 C4,20 10,4 20,4 Z" fill="url(#egg-grad-${type})" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>
+      <path d="M20,4 C30,4 36,20 36,32 C36,42 29,46 20,46 C11,46 4,42 4,32 C4,20 10,4 20,4 Z" fill="url(#${gradId})" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>
+    </svg>
+  `;
+}
+
+// --- Seed Packet(씨앗 봉투) SVG Renderer ---
+export function getSeedPacketSVG(type, size = 40) {
+  const gradeColor = GRADE_COLORS[type] || '#ffffff';
+  const gradId = nextSvgUid(`packet-paper-${type}`);
+  return `
+    <svg width="${size}" height="${size * 1.15}" viewBox="0 0 44 50" style="display:inline-block; overflow:visible; filter: drop-shadow(0 0 6px ${gradeColor});">
+      <defs>
+        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f3e6c8"/>
+          <stop offset="100%" stop-color="#e2cf9e"/>
+        </linearGradient>
+      </defs>
+      <!-- 봉투 몸통 -->
+      <path d="M4,14 L40,14 L40,44 C40,46.2 38.2,48 36,48 L8,48 C5.8,48 4,46.2 4,44 Z" fill="url(#${gradId})" stroke="${gradeColor}" stroke-width="2"/>
+      <!-- 접힌 상단 플랩 -->
+      <path d="M4,14 L22,2 L40,14 Z" fill="${gradeColor}"/>
+      <path d="M4,14 L22,2 L40,14" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+      <!-- 박음질 스티치 라인 -->
+      <line x1="8" y1="19" x2="36" y2="19" stroke="${gradeColor}" stroke-width="1" stroke-dasharray="2,2" opacity="0.7"/>
+      <!-- 씨앗 라벨 원 -->
+      <circle cx="22" cy="33" r="12" fill="#fffdf7" stroke="${gradeColor}" stroke-width="2"/>
+      <text x="22" y="38" font-size="14" text-anchor="middle">🌱</text>
     </svg>
   `;
 }
@@ -239,4 +275,62 @@ export function drawBirdCanvas(ctx, type, x, y, size, angle = 0, state = {}) {
   }
 
   ctx.restore();
+}
+
+// --- 암시장 NPC: 사신 새 (낫 + 사신 모자) ---
+export function getReaperBirdSVG(size = 110) {
+  const uid = nextSvgUid('reaper');
+  return `
+    <svg width="${size}" height="${size}" viewBox="0 0 120 120" style="display:block; overflow:visible;">
+      <defs>
+        <linearGradient id="${uid}-hood" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4a3f6b"/>
+          <stop offset="100%" stop-color="#1a1526"/>
+        </linearGradient>
+        <linearGradient id="${uid}-blade" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#f7fafc"/>
+          <stop offset="60%" stop-color="#a0aec0"/>
+          <stop offset="100%" stop-color="#4a5568"/>
+        </linearGradient>
+        <radialGradient id="${uid}-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#e53e3e" stop-opacity="0.85"/>
+          <stop offset="100%" stop-color="#e53e3e" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- 바닥 그림자 -->
+      <ellipse cx="60" cy="112" rx="30" ry="6" fill="rgba(0,0,0,0.45)"/>
+
+      <!-- 낫 자루 -->
+      <line x1="97" y1="18" x2="82" y2="110" stroke="#5b4636" stroke-width="5" stroke-linecap="round"/>
+      <!-- 낫 날 -->
+      <path d="M97,18 C74,14 56,24 50,40 C64,30 82,28 95,34 C99,28 99,22 97,18 Z"
+            fill="url(#${uid}-blade)" stroke="#2d3748" stroke-width="1.5" stroke-linejoin="round"/>
+
+      <!-- 로브(몸통) -->
+      <path d="M60,44 C78,44 88,62 88,86 C88,100 76,106 60,106 C44,106 32,100 32,86 C32,62 42,44 60,44 Z"
+            fill="url(#${uid}-hood)"/>
+      <!-- 로브 앞자락 주름 -->
+      <path d="M46,96 L52,78 L60,96 L68,78 L74,96" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2"/>
+
+      <!-- 후드 그늘 -->
+      <ellipse cx="60" cy="52" rx="24" ry="20" fill="#120e1c"/>
+
+      <!-- 붉은 눈빛 -->
+      <ellipse cx="60" cy="54" rx="20" ry="12" fill="url(#${uid}-glow)"/>
+      <circle cx="52" cy="53" r="3.4" fill="#ff4d4d"/>
+      <circle cx="68" cy="53" r="3.4" fill="#ff4d4d"/>
+      <circle cx="52.8" cy="52.2" r="1.1" fill="#fff5f5"/>
+      <circle cx="68.8" cy="52.2" r="1.1" fill="#fff5f5"/>
+
+      <!-- 부리 -->
+      <polygon points="55,60 65,60 60,70" fill="#d69e2e"/>
+
+      <!-- 사신 모자(후드) 외곽 -->
+      <path d="M60,20 C80,20 92,38 90,56 C86,44 74,36 60,36 C46,36 34,44 30,56 C28,38 40,20 60,20 Z"
+            fill="url(#${uid}-hood)" stroke="#0d0a14" stroke-width="1.5"/>
+      <!-- 모자 끝 늘어짐 -->
+      <path d="M88,50 C96,58 96,70 90,76 C90,66 88,58 84,52 Z" fill="#2a2140"/>
+    </svg>
+  `;
 }

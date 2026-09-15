@@ -3,14 +3,17 @@
 import {
   stateManager, BIRD_TEMPLATES, GRADE_NAMES, GRADE_COLORS, GRADES,
   ENHANCE_MAX, ENHANCE_COPY_COST, ENHANCE_ATK_BONUS,
-  getEnhanceFeatherCost, getEnhanceMult, formatEnhanceStars
+  getEnhanceFeatherCost, getEnhanceMult, formatEnhanceStars,
+  STAGE_MATERIAL_DROPS, FEED_RECIPES, FEED_EFFECTS
 } from './state.js';
-import { getBirdSVG } from './assets.js';
+import { getBirdSVG, soundEngine } from './assets.js';
 
 export class EnhanceSystem {
   constructor() {
     this.grid = document.getElementById('enhance-bird-grid');
     this.detailPanel = document.getElementById('enhance-detail-panel');
+    this.materialsRow = document.getElementById('feed-materials-row');
+    this.recipeGrid = document.getElementById('feed-recipe-grid');
     this.selectedBirdId = null;
     this.activeGradeFilter = 'all';
   }
@@ -36,6 +39,73 @@ export class EnhanceSystem {
     this.renderList();
     if (this.selectedBirdId) this.renderDetail(this.selectedBirdId);
     else this.renderEmptyDetail();
+    this.renderFeedCraft();
+  }
+
+  // --- 모이 제작소: 재료(스테이지 드롭) + 깃털 조합 ---
+  renderFeedCraft() {
+    if (!this.materialsRow || !this.recipeGrid) return;
+    const state = stateManager.state;
+    const materials = state.inventory.materials || {};
+    const feeds = state.inventory.feeds || {};
+    const materialTable = STAGE_MATERIAL_DROPS[1];
+
+    this.materialsRow.innerHTML = materialTable.map(mat => `
+      <div class="feed-material-badge" style="border-color: ${GRADE_COLORS[mat.grade]}66;">
+        <span class="feed-material-icon">${mat.icon}</span>
+        <span class="feed-material-name">${mat.name}</span>
+        <span class="feed-material-count">${materials[mat.id] || 0}개</span>
+      </div>
+    `).join('');
+
+    this.recipeGrid.innerHTML = '';
+    Object.values(FEED_RECIPES).forEach(recipe => {
+      const haveMaterial = materials[recipe.materialId] || 0;
+      const haveFeathers = state.feathers;
+      const materialOk = haveMaterial >= recipe.materialCost;
+      const feathersOk = haveFeathers >= recipe.featherCost;
+      const canCraft = materialOk && feathersOk;
+      const matInfo = materialTable.find(m => m.id === recipe.materialId);
+
+      const card = document.createElement('div');
+      card.className = 'feed-recipe-card glass-panel';
+      card.innerHTML = `
+        <div class="feed-recipe-icon" style="filter: drop-shadow(0 0 10px ${GRADE_COLORS[recipe.grade]});">${recipe.icon}</div>
+        <h4>${recipe.name}</h4>
+        <span class="grade-badge" style="color: ${GRADE_COLORS[recipe.grade]}">${GRADE_NAMES[recipe.grade]}</span>
+        <p class="feed-effect-text">${(FEED_EFFECTS[recipe.id] || {}).desc || ''}</p>
+        <div class="feed-recipe-cost">
+          <span class="${materialOk ? '' : 'cost-lack'}">${matInfo ? matInfo.icon : ''} ${recipe.materialCost}개 (보유 ${haveMaterial})</span>
+          <span class="${feathersOk ? '' : 'cost-lack'}">🪶 ${recipe.featherCost}</span>
+        </div>
+        <div class="feed-recipe-owned">보유: ${feeds[recipe.id] || 0}개</div>
+        <button class="btn ${canCraft ? 'btn-success' : 'btn-secondary'} btn-sm w-100" ${canCraft ? '' : 'disabled'}>제작하기</button>
+      `;
+      card.querySelector('button').addEventListener('click', () => this.craftFeed(recipe.id));
+      this.recipeGrid.appendChild(card);
+    });
+  }
+
+  craftFeed(feedId) {
+    const recipe = FEED_RECIPES[feedId];
+    const matInfo = STAGE_MATERIAL_DROPS[1].find(m => m.id === recipe.materialId);
+    const matName = matInfo ? matInfo.name : recipe.materialId;
+    if (!confirm(
+      `[${recipe.name}]을(를) 제작합니다.\n\n소모: ${matName} ${recipe.materialCost}개 · 🪶 ${recipe.featherCost}개\n\n정말 제작하시겠습니까? 취소할 수 없습니다.`
+    )) return;
+
+    const result = stateManager.craftFeed(feedId);
+    if (!result.ok) {
+      const messages = {
+        material: '재료가 부족합니다.',
+        feathers: '깃털이 부족합니다.',
+        invalid: '잘못된 레시피입니다.'
+      };
+      alert(messages[result.reason] || '제작에 실패했습니다.');
+      return;
+    }
+    soundEngine.playHatch();
+    this.render();
   }
 
   renderList() {

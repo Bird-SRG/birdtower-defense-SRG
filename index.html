@@ -30,6 +30,10 @@
           <span class="stat-icon">🪶</span>
           <span id="player-feathers">300</span>
         </div>
+        <div class="stat-badge gem-badge" title="이상한 보석 (암시장 전용 재화)">
+          <span class="stat-icon">💜</span>
+          <span id="player-gems">0</span>
+        </div>
       </div>
     </header>
 
@@ -43,8 +47,11 @@
             <div id="game-overlay" class="game-overlay-hidden">
               <div class="overlay-content">
                 <h2 id="overlay-title">GAME OVER</h2>
-                <p id="overlay-subtitle">웨이브에서 성문이 파괴되었습니다.</p>
-                <button id="btn-restart" class="btn btn-primary">다시 도전</button>
+                <p id="overlay-subtitle" class="hidden"></p>
+                <div class="overlay-actions">
+                  <button id="btn-restart" class="btn btn-primary">다시 도전</button>
+                  <button id="btn-back-to-menu" class="btn btn-secondary">메뉴로</button>
+                </div>
               </div>
             </div>
             <div id="skip-vote-modal" class="skip-vote-modal hidden">
@@ -54,6 +61,16 @@
                 <div class="vote-actions">
                   <button id="btn-vote-accept" class="btn btn-success">승인 (스킵)</button>
                   <button id="btn-vote-reject" class="btn btn-danger">거부 (계속 진행)</button>
+                </div>
+              </div>
+            </div>
+            <div id="battle-end-confirm-modal" class="skip-vote-modal hidden">
+              <div class="vote-content glass-panel">
+                <h3>⚠️ 전투 종료</h3>
+                <p>정말 전투를 끝내시겠어요?<br>진행 중인 웨이브가 초기화됩니다.</p>
+                <div class="vote-actions">
+                  <button id="btn-end-battle-confirm" class="btn btn-danger">종료하기</button>
+                  <button id="btn-end-battle-cancel" class="btn btn-secondary">취소</button>
                 </div>
               </div>
             </div>
@@ -78,6 +95,7 @@
             </div>
             <div class="control-buttons">
               <button id="btn-speed-up" class="btn btn-secondary w-100">속도 x1</button>
+              <button id="btn-end-battle" class="btn btn-danger w-100">🏳️ 전투 끝내기</button>
             </div>
             <div class="placement-selector">
               <div class="placement-header">
@@ -96,11 +114,28 @@
               </div>
               <div class="panel-body">
                 <p>인런 레벨: <span id="sel-tower-level">1</span></p>
-                <p>공격력: <span id="sel-tower-dmg">10</span></p>
-                <p>공격속도: <span id="sel-tower-speed">1.0</span>/s</p>
+                <p id="sel-tower-dmg-row">공격력: <span id="sel-tower-dmg">10</span><span id="sel-tower-dmg-upgrade" class="stat-upgrade-preview hidden"><span class="stat-arrow">→</span><span id="sel-tower-dmg-next" class="stat-next"></span></span></p>
+                <p id="sel-tower-speed-row">공격속도: <span id="sel-tower-speed">1.0</span>/s<span id="sel-tower-speed-upgrade" class="stat-upgrade-preview hidden"><span class="stat-arrow">→</span><span id="sel-tower-speed-next" class="stat-next"></span>/s</span></p>
+                <p>사거리: <span id="sel-tower-range">100</span><span id="sel-tower-range-upgrade" class="stat-upgrade-preview hidden"><span class="stat-arrow">→</span><span id="sel-tower-range-next" class="stat-next"></span></span></p>
+                <p id="sel-tower-effect-row" class="sel-tower-effect hidden"></p>
+                <p id="sel-tower-feed" class="sel-tower-feed hidden"></p>
                 <button id="btn-upgrade-tower" class="btn btn-primary btn-sm">업그레이드</button>
                 <button id="btn-sell-tower" class="btn btn-danger btn-sm">회수 (50% 환급)</button>
               </div>
+            </div>
+          </div>
+          <div id="stage-intro-overlay" class="stage-intro-overlay">
+            <div class="stage-intro-nav">
+              <button id="btn-stage-prev" class="stage-nav-arrow" title="이전 스테이지">◂</button>
+              <div class="stage-intro-content">
+                <div id="stage-intro-image" class="stage-intro-image"></div>
+                <div class="stage-intro-label" id="stage-intro-label">STAGE 1</div>
+                <h1 class="stage-intro-title" id="stage-intro-title">파일럿 스테이지</h1>
+                <p class="stage-intro-desc" id="stage-intro-desc">기초 방어 훈련장입니다. 새를 배치해 25웨이브를 막아내고 성을 지켜내세요!</p>
+                <button id="btn-stage-play" class="btn btn-primary btn-glow stage-play-btn">▶ 플레이</button>
+                <p id="stage-locked-hint" class="stage-locked-hint hidden">🔒 이전 스테이지를 클리어하면 열립니다</p>
+              </div>
+              <button id="btn-stage-next" class="stage-nav-arrow" title="다음 스테이지">▸</button>
             </div>
           </div>
         </div>
@@ -154,6 +189,13 @@
           <div id="egg-inventory-list" class="shop-grid">
             <!-- 보유 알 목록 -->
           </div>
+
+          <!-- 아이템 칸 (제작한 모이 보관) -->
+          <div class="feed-inventory-section">
+            <h3>🎒 아이템</h3>
+            <p class="feed-inventory-desc">제작한 모이를 보관합니다. 모이를 눌러 새에게 먹이세요.</p>
+            <div id="feed-inventory-grid" class="shop-grid"></div>
+          </div>
         </div>
       </section>
 
@@ -173,8 +215,8 @@
             <button class="filter-btn" data-grade="mythic">신화</button>
           </div>
           <div class="inventory-layout">
-            <div id="bird-grid" class="bird-grid">
-              <!-- 새 카드 리스트 -->
+            <div id="bird-grid" class="bird-codex-list">
+              <!-- 등급별 새 카드 섹션 -->
             </div>
             <div id="bird-detail-panel" class="bird-detail-panel glass-panel hidden">
               <div class="detail-header">
@@ -214,7 +256,10 @@
               <h2>⚔️ 전투 덱</h2>
               <p>보유한 새 중에서 서로 다른 새를 최대 5마리까지 장착하세요.</p>
             </div>
-            <div class="deck-count-badge">장착 <span id="deck-count-label">1 / 5</span></div>
+            <div class="deck-header-actions">
+              <button id="btn-equip-best" class="btn btn-primary btn-sm">⭐ 최고 장착하기</button>
+              <div class="deck-count-badge">장착 <span id="deck-count-label">1 / 5</span></div>
+            </div>
           </div>
           <div id="deck-slots-row" class="deck-builder-slots"></div>
           <h3 class="deck-owned-title">보유 새</h3>
@@ -255,12 +300,30 @@
               <p class="enhance-placeholder">강화할 새를 선택하세요.</p>
             </div>
           </div>
+
+          <div class="feed-craft-section">
+            <div class="enhance-header">
+              <div>
+                <h2>🌾 모이 제작소</h2>
+                <p>스테이지 클리어 시 확률적으로 드롭되는 재료와 깃털을 조합해 모이를 만듭니다. (모이의 사용 효과는 추후 추가 예정)</p>
+              </div>
+            </div>
+            <div id="feed-materials-row" class="feed-materials-row">
+              <!-- 보유 재료 표시 -->
+            </div>
+            <div id="feed-recipe-grid" class="feed-recipe-grid">
+              <!-- 제작 레시피 카드 -->
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- 7. 상점 탭 (GDD 6-1 6칸 진열) -->
       <section id="tab-shop" class="tab-pane">
         <div class="shop-container">
+          <div id="black-market-container" class="black-market-container">
+            <!-- 암시장 (일정 확률로 등장) -->
+          </div>
           <div class="shop-header" style="display:flex; justify-content:space-between; align-items:center;">
             <h3>🛒 상점 (알 3칸 + 씨앗 상자 3칸)</h3>
             <div>
@@ -288,6 +351,20 @@
               <h3>모든 등급의 알 획득</h3>
               <p>일반 ~ 신화 모든 등급의 알을 즉시 10개씩 (총 60개) 지급합니다.</p>
               <button id="admin-btn-add-eggs" class="btn btn-primary btn-glow w-100">모든 등급 알 10개 획득</button>
+            </div>
+
+            <div class="admin-card glass-panel">
+              <div class="admin-card-icon">🎁</div>
+              <h3>모든 등급의 씨앗 상자 획득</h3>
+              <p>일반 ~ 신화 모든 등급의 씨앗 상자를 즉시 10개씩 (총 60개) 지급합니다.</p>
+              <button id="admin-btn-add-seedboxes" class="btn btn-primary btn-glow w-100">모든 등급 씨앗 상자 10개 획득</button>
+            </div>
+
+            <div class="admin-card glass-panel">
+              <div class="admin-card-icon">💜</div>
+              <h3>이상한 보석 지급</h3>
+              <p>암시장 전용 재화인 이상한 보석 +100개를 지급합니다.</p>
+              <button id="admin-btn-add-gems" class="btn btn-primary btn-glow w-100">이상한 보석 +100</button>
             </div>
 
             <div class="admin-card glass-panel">
@@ -328,8 +405,8 @@
             <div class="admin-card glass-panel">
               <div class="admin-card-icon">⚡</div>
               <h3>웨이브 스킵</h3>
-              <p>현재 진행 중인 웨이브의 몬스터를 즉시 소멸시킵니다.</p>
-              <button id="admin-btn-skip-wave" class="btn btn-secondary w-100">현재 웨이브 클리어</button>
+              <p>현재 웨이브를 즉시 종료하고 다음 웨이브로 넘어갑니다.</p>
+              <button id="admin-btn-skip-wave" class="btn btn-secondary w-100">다음 웨이브로 넘어가기</button>
             </div>
 
             <div class="admin-card glass-panel">
@@ -381,6 +458,69 @@
       </nav>
     </footer>
   </div>
+
+  <div id="hatch-result-modal" class="hatch-result-modal hidden">
+    <div class="hatch-content">
+      <div id="hatch-stage-egg" class="hatch-stage-egg">
+        <div id="hatch-egg-visual" class="hatch-egg-visual"></div>
+        <p id="hatch-egg-label" class="hatch-egg-label">부화 중...</p>
+      </div>
+      <div id="hatch-stage-reveal" class="hatch-stage-reveal hidden">
+        <div id="hatch-bird-svg" class="hatch-bird-svg"></div>
+        <span id="hatch-grade-badge" class="hatch-grade-badge"></span>
+        <h2 id="hatch-bird-name" class="hatch-bird-name"></h2>
+        <p id="hatch-bird-desc" class="hatch-bird-desc"></p>
+        <button id="hatch-close-btn" class="btn btn-primary">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="feed-use-modal" class="feed-use-modal hidden">
+    <div class="feed-use-content glass-panel">
+      <div class="feed-use-header">
+        <h3 id="feed-use-title">모이 사용</h3>
+        <button id="feed-use-close" class="btn-close-panel" title="닫기">&times;</button>
+      </div>
+      <p id="feed-use-desc" class="feed-use-desc">모이를 먹일 새를 선택하세요.</p>
+      <div id="feed-use-bird-grid" class="bird-grid feed-use-bird-grid"></div>
+    </div>
+  </div>
+
+  <div id="feed-confirm-modal" class="feed-use-modal hidden">
+    <div class="feed-confirm-content glass-panel">
+      <h3>⚠️ 모이 먹이기</h3>
+      <p id="feed-confirm-text">계속하시겠습니까?<br>나중에 새로운 모이를 먹이려면 비용을 내고 토해 내야 합니다.</p>
+      <div class="vote-actions">
+        <button id="feed-confirm-yes" class="btn btn-success">계속하기</button>
+        <button id="feed-confirm-no" class="btn btn-secondary">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="black-market-modal" class="black-market-modal hidden">
+    <div class="black-market-modal-content glass-panel">
+      <div class="black-market-modal-header">
+        <h3>🕵️ 암시장</h3>
+        <div class="black-market-modal-meta">
+          <span id="black-market-modal-timer" class="black-market-countdown"></span>
+          <button id="black-market-modal-close" class="btn-close-panel" title="닫기">&times;</button>
+        </div>
+      </div>
+      <div class="black-market-npc-row">
+        <button id="black-market-npc" class="black-market-npc" title="말 걸기">
+          <div id="black-market-npc-art"></div>
+          <span class="black-market-npc-name">사신 새</span>
+        </button>
+        <div class="black-market-npc-side">
+          <div id="black-market-npc-bubble" class="black-market-npc-bubble hidden"></div>
+          <p class="black-market-modal-desc">떠돌이 상인이 은밀한 물건을 팔고 있습니다. 결제는 💜 이상한 보석으로만 받습니다.</p>
+        </div>
+      </div>
+      <div id="black-market-modal-grid" class="shop-grid black-market-grid"></div>
+    </div>
+  </div>
+
+  <div id="global-toast" class="global-toast hidden"></div>
 
   <script type="module" src="src/main.js"></script>
 </body>

@@ -179,10 +179,10 @@ export const BIRD_TEMPLATES = {
     id: 'poison_bird', name: '중독된 새', grade: GRADES.RARE, type: '디버프형 (중첩)',
     desc: '공격 시 맹독 스택을 쌓아 3스택 시 폭발 피해를 일으킵니다.',
     levels: [
-      { level: 1, atk: 5, interval: 1.10, range: 128, cost: 0, effectDesc: '독 0.7, 3스택 폭발 6.0', poisonDmg: 0.7, maxStack: 3, explodeDmg: 6.0 },
-      { level: 2, atk: 7, interval: 0.98, range: 136, cost: 180, effectDesc: '독 0.9, 3스택 폭발 8.0', poisonDmg: 0.9, maxStack: 3, explodeDmg: 8.0 },
-      { level: 3, atk: 10, interval: 0.85, range: 144, cost: 380, effectDesc: '독 1.2, 3스택 폭발 11.0', poisonDmg: 1.2, maxStack: 3, explodeDmg: 11.0 },
-      { level: 4, atk: 13, interval: 0.77, range: 152, cost: 700, effectDesc: '독 1.6, 3스택 폭발 14.0', poisonDmg: 1.6, maxStack: 3, explodeDmg: 14.0 }
+      { level: 1, atk: 5, interval: 1.10, range: 128, cost: 0, effectDesc: '독 0.7, 3스택 폭발 6.0', poisonDmg: 0.7, maxStack: 3, explodeDmg: 6.0, explodeRadius: 45 },
+      { level: 2, atk: 7, interval: 0.98, range: 136, cost: 180, effectDesc: '독 0.9, 3스택 폭발 8.0', poisonDmg: 0.9, maxStack: 3, explodeDmg: 8.0, explodeRadius: 50 },
+      { level: 3, atk: 10, interval: 0.85, range: 144, cost: 380, effectDesc: '독 1.2, 3스택 폭발 11.0', poisonDmg: 1.2, maxStack: 3, explodeDmg: 11.0, explodeRadius: 55 },
+      { level: 4, atk: 13, interval: 0.77, range: 152, cost: 700, effectDesc: '독 1.6, 3스택 폭발 14.0', poisonDmg: 1.6, maxStack: 3, explodeDmg: 14.0, explodeRadius: 60 }
     ]
   },
   farmer_bird: {
@@ -199,10 +199,13 @@ export const BIRD_TEMPLATES = {
     id: 'summoner_bird', name: '소환사 새', grade: GRADES.RARE, type: '소환형',
     desc: '주기적으로 병아리를 소환해 함께 싸웁니다.',
     levels: [
-      { level: 1, atk: 1, interval: 1.70, range: 112, cost: 0, effectDesc: '5.1초마다 병아리 1마리 (ATK 0.5)', summonCD: 5.1, chickCount: 1, chickAtk: 0.5 },
-      { level: 2, atk: 1.5, interval: 1.53, range: 120, cost: 170, effectDesc: '4.2초마다 병아리 1마리 (ATK 0.7)', summonCD: 4.2, chickCount: 1, chickAtk: 0.7 },
-      { level: 3, atk: 2, interval: 1.36, range: 128, cost: 360, effectDesc: '3.4초마다 병아리 2마리 (ATK 1.0)', summonCD: 3.4, chickCount: 2, chickAtk: 1.0 },
-      { level: 4, atk: 3, interval: 1.19, range: 136, cost: 660, effectDesc: '3.0초마다 병아리 2마리 (ATK 1.3)', summonCD: 3.0, chickCount: 2, chickAtk: 1.3 }
+      { level: 1, atk: 1, interval: 1.70, range: 112, cost: 0, effectDesc: '5.1초마다 병아리 1마리 (HP3 / ATK0.5 / 공속1.2s / 사거리40)', summonCD: 5.1, chickCount: 1, chickHp: 3, chickAtk: 0.5, chickInterval: 1.2, chickRange: 40 },
+      { level: 2, atk: 1.5, interval: 1.53, range: 120, cost: 170, effectDesc: '4.2초마다 병아리 1마리 (HP4 / ATK0.7 / 공속1.0s / 사거리45)', summonCD: 4.2, chickCount: 1, chickHp: 4, chickAtk: 0.7, chickInterval: 1.0, chickRange: 45 },
+      { level: 3, atk: 2, interval: 1.36, range: 128, cost: 360, effectDesc: '3.4초마다 병아리 2마리 (HP6 / ATK1.0 / 공속0.85s / 사거리50)', summonCD: 3.4, chickCount: 2, chickHp: 6, chickAtk: 1.0, chickInterval: 0.85, chickRange: 50 },
+      // 마지막 레벨: 소환할 때마다 원거리(chick*)/근접(chickMelee*) 병아리를 번갈아 낸다
+      { level: 4, atk: 3, interval: 1.19, range: 136, cost: 660, effectDesc: '3.0초마다 병아리 2마리 소환 (원거리·근접 번갈아: 원거리 HP7/ATK1.0/공속1.1s/사거리90, 근접 HP7/ATK1.8/공속0.45s/사거리25)', summonCD: 3.0, chickCount: 2,
+        chickHp: 7, chickAtk: 1.0, chickInterval: 1.1, chickRange: 90,
+        chickMeleeHp: 7, chickMeleeAtk: 1.8, chickMeleeInterval: 0.45, chickMeleeRange: 25 }
     ]
   },
   soldier_bird: {
@@ -291,20 +294,20 @@ export const BIRD_TEMPLATES = {
     id: 'architect_bird', name: '건축가 새', grade: GRADES.EPIC, type: '설치 지원형',
     desc: '필드 상에 일정 시간 유지되는 임시 포탑을 설치합니다.',
     levels: [
-      { level: 1, atk: 3, interval: 1.27, range: 112, cost: 0, effectDesc: '8.5초마다 포탑(ATK 4, 5초)', turretCD: 8.5, turretAtk: 4, turretDur: 5 },
-      { level: 2, atk: 4, interval: 1.15, range: 120, cost: 320, effectDesc: '7.6초마다 포탑(ATK 5, 6초)', turretCD: 7.6, turretAtk: 5, turretDur: 6 },
-      { level: 3, atk: 5, interval: 1.02, range: 128, cost: 660, effectDesc: '6.8초마다 포탑(ATK 6, 7초)', turretCD: 6.8, turretAtk: 6, turretDur: 7 },
-      { level: 4, atk: 7, interval: 0.89, range: 136, cost: 1200, effectDesc: '6.0초마다 포탑(ATK 8, 8초)', turretCD: 6.0, turretAtk: 8, turretDur: 8 }
+      { level: 1, atk: 3, interval: 1.27, range: 112, cost: 0, effectDesc: '8.5초마다 포탑(ATK 4, HP15, 5초)', turretCD: 8.5, turretAtk: 4, turretHp: 15, turretDur: 5 },
+      { level: 2, atk: 4, interval: 1.15, range: 120, cost: 320, effectDesc: '7.6초마다 포탑(ATK 5, HP20, 6초)', turretCD: 7.6, turretAtk: 5, turretHp: 20, turretDur: 6 },
+      { level: 3, atk: 5, interval: 1.02, range: 128, cost: 660, effectDesc: '6.8초마다 포탑(ATK 6, HP25, 7초)', turretCD: 6.8, turretAtk: 6, turretHp: 25, turretDur: 7 },
+      { level: 4, atk: 7, interval: 0.89, range: 136, cost: 1200, effectDesc: '6.0초마다 포탑(ATK 8, HP32, 8초)', turretCD: 6.0, turretAtk: 8, turretHp: 32, turretDur: 8 }
     ]
   },
   hasty_bird: {
     id: 'hasty_bird', name: '급한 새', grade: GRADES.EPIC, type: '지원형 (오라)',
     desc: '주변 새들의 공격속도를 크게 상승시키는 오라를 발산합니다.',
     levels: [
-      { level: 1, atk: 3, interval: 1.10, range: 104, cost: 0, effectDesc: '주변 공격속도 +8%', auraSpd: 0.08, auraRange: 120 },
-      { level: 2, atk: 4, interval: 0.98, range: 112, cost: 280, effectDesc: '주변 공격속도 +12%', auraSpd: 0.12, auraRange: 130 },
-      { level: 3, atk: 5, interval: 0.85, range: 120, cost: 600, effectDesc: '주변 공격속도 +16%', auraSpd: 0.16, auraRange: 140 },
-      { level: 4, atk: 7, interval: 0.77, range: 128, cost: 1100, effectDesc: '주변 공격속도 +20%', auraSpd: 0.20, auraRange: 150 }
+      { level: 1, atk: 3, interval: 1.10, range: 104, cost: 0, effectDesc: '주변 공격속도 -8%', auraSpd: 0.08, auraRange: 120 },
+      { level: 2, atk: 4, interval: 0.98, range: 112, cost: 280, effectDesc: '주변 공격속도 -12%', auraSpd: 0.12, auraRange: 130 },
+      { level: 3, atk: 5, interval: 0.85, range: 120, cost: 600, effectDesc: '주변 공격속도 -16%', auraSpd: 0.16, auraRange: 140 },
+      { level: 4, atk: 7, interval: 0.77, range: 128, cost: 1100, effectDesc: '주변 공격속도 -20%', auraSpd: 0.20, auraRange: 150 }
     ]
   },
   infector_bird: {
@@ -323,11 +326,11 @@ export const BIRD_TEMPLATES = {
     id: 'party_bird', name: '파티광 새', grade: GRADES.LEGENDARY, type: '지원형 (광역 버프)',
     desc: '신나는 파티 오라로 주변 새들의 공격력과 공격속도를 동시 상승시킵니다.',
     levels: [
-      { level: 1, atk: 2, interval: 1.02, range: 112, cost: 0, effectDesc: '주변 ATK+5%, SPD+5%', auraAtk: 0.05, auraSpd: 0.05, auraRange: 130 },
-      { level: 2, atk: 3, interval: 0.89, range: 120, cost: 400, effectDesc: '주변 ATK+7%, SPD+7%', auraAtk: 0.07, auraSpd: 0.07, auraRange: 140 },
-      { level: 3, atk: 4, interval: 0.77, range: 128, cost: 840, effectDesc: '주변 ATK+9%, SPD+9%', auraAtk: 0.09, auraSpd: 0.09, auraRange: 150 },
-      { level: 4, atk: 5, interval: 0.68, range: 136, cost: 1500, effectDesc: '주변 ATK+11%, SPD+11%', auraAtk: 0.11, auraSpd: 0.11, auraRange: 160 },
-      { level: 5, atk: 6, interval: 0.59, range: 144, cost: 2400, effectDesc: '주변 ATK+14%, SPD+14%', auraAtk: 0.14, auraSpd: 0.14, auraRange: 170 }
+      { level: 1, atk: 2, interval: 1.02, range: 112, cost: 0, effectDesc: '주변 ATK+5%, SPD-5%', auraAtk: 0.05, auraSpd: 0.05, auraRange: 130 },
+      { level: 2, atk: 3, interval: 0.89, range: 120, cost: 400, effectDesc: '주변 ATK+7%, SPD-7%', auraAtk: 0.07, auraSpd: 0.07, auraRange: 140 },
+      { level: 3, atk: 4, interval: 0.77, range: 128, cost: 840, effectDesc: '주변 ATK+9%, SPD-9%', auraAtk: 0.09, auraSpd: 0.09, auraRange: 150 },
+      { level: 4, atk: 5, interval: 0.68, range: 136, cost: 1500, effectDesc: '주변 ATK+11%, SPD-11%', auraAtk: 0.11, auraSpd: 0.11, auraRange: 160 },
+      { level: 5, atk: 6, interval: 0.59, range: 144, cost: 2400, effectDesc: '주변 ATK+14%, SPD-14%', auraAtk: 0.14, auraSpd: 0.14, auraRange: 170 }
     ]
   },
   ice_bird: {
@@ -424,22 +427,24 @@ export const BIRD_TEMPLATES = {
     id: 'bird_o_tron', name: '버드-오-트론', grade: GRADES.MYTHIC, type: '변형형 (전천후 궁극)',
     desc: '근접 및 원거리 모드를 자율 전환하는 만능형 변형 로봇 새.',
     levels: [
-      { level: 1, atk: 18, interval: 1.02, range: 160, cost: 0, effectDesc: '8.5초마다 근/원거리 모드 전환', switchCD: 8.5 },
-      { level: 2, atk: 23, interval: 0.89, range: 168, cost: 600, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 },
-      { level: 3, atk: 29, interval: 0.77, range: 176, cost: 1240, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 },
-      { level: 4, atk: 38, interval: 0.68, range: 184, cost: 2100, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 },
-      { level: 5, atk: 48, interval: 0.59, range: 192, cost: 3300, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 }
+      // atk/interval/range = 원거리 모드, melee* = 근접 모드 (독립 수치, 자유롭게 조정 가능)
+      // 근접 모드: 사거리는 원거리의 절반(2배 차이), 공속은 1.5배 빠름, 공격력은 1.3배 강함
+      { level: 1, atk: 18, interval: 1.02, meleeAtk: 23.4, meleeInterval: 0.68, meleeRange: 80, range: 160, cost: 0, effectDesc: '8.5초마다 근/원거리 모드 전환', switchCD: 8.5 },
+      { level: 2, atk: 23, interval: 0.89, meleeAtk: 29.9, meleeInterval: 0.59, meleeRange: 84, range: 168, cost: 600, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 },
+      { level: 3, atk: 29, interval: 0.77, meleeAtk: 37.7, meleeInterval: 0.51, meleeRange: 88, range: 176, cost: 1240, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 },
+      { level: 4, atk: 38, interval: 0.68, meleeAtk: 49.4, meleeInterval: 0.45, meleeRange: 92, range: 184, cost: 2100, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 },
+      { level: 5, atk: 48, interval: 0.59, meleeAtk: 62.4, meleeInterval: 0.39, meleeRange: 96, range: 192, cost: 3300, effectDesc: '8.5초마다 모드 전환', switchCD: 8.5 }
     ]
   },
   engineer_bird: {
     id: 'engineer_bird', name: '엔지니어 새', grade: GRADES.MYTHIC, type: '설치형 (궁극)',
     desc: '강력한 자동 포탑과 함정을 필드에 계속 배치합니다.',
     levels: [
-      { level: 1, atk: 0, interval: 1.0, range: 0, cost: 0, effectDesc: '12.8초마다 터렛(ATK 8, 8초)+함정(피해 7)', cd: 12.8, tAtk: 8, tDur: 8, trDmg: 7 },
-      { level: 2, atk: 0, interval: 1.0, range: 0, cost: 620, effectDesc: '11.0초마다 터렛(ATK 11, 9초)+함정(피해 9)', cd: 11.0, tAtk: 11, tDur: 9, trDmg: 9 },
-      { level: 3, atk: 0, interval: 1.0, range: 0, cost: 1280, effectDesc: '9.3초마다 터렛(ATK 14, 10초)+함정(피해 12)', cd: 9.3, tAtk: 14, tDur: 10, trDmg: 12 },
-      { level: 4, atk: 0, interval: 1.0, range: 0, cost: 2160, effectDesc: '7.6초마다 터렛(ATK 18, 11초)+함정(피해 16)', cd: 7.6, tAtk: 18, tDur: 11, trDmg: 16 },
-      { level: 5, atk: 0, interval: 1.0, range: 0, cost: 3400, effectDesc: '6.0초마다 터렛(ATK 22, 12초)+함정(피해 20)', cd: 6.0, tAtk: 22, tDur: 12, trDmg: 20 }
+      { level: 1, atk: 0, interval: 1.0, range: 0, cost: 0, effectDesc: '12.8초마다 터렛(ATK 8, HP20, 8초)+함정(피해 7)', cd: 12.8, tAtk: 8, tHp: 20, tDur: 8, trDmg: 7 },
+      { level: 2, atk: 0, interval: 1.0, range: 0, cost: 620, effectDesc: '11.0초마다 터렛(ATK 11, HP26, 9초)+함정(피해 9)', cd: 11.0, tAtk: 11, tHp: 26, tDur: 9, trDmg: 9 },
+      { level: 3, atk: 0, interval: 1.0, range: 0, cost: 1280, effectDesc: '9.3초마다 터렛(ATK 14, HP33, 10초)+함정(피해 12)', cd: 9.3, tAtk: 14, tHp: 33, tDur: 10, trDmg: 12 },
+      { level: 4, atk: 0, interval: 1.0, range: 0, cost: 2160, effectDesc: '7.6초마다 터렛(ATK 18, HP42, 11초)+함정(피해 16)', cd: 7.6, tAtk: 18, tHp: 42, tDur: 11, trDmg: 16 },
+      { level: 5, atk: 0, interval: 1.0, range: 0, cost: 3400, effectDesc: '6.0초마다 터렛(ATK 22, HP52, 12초)+함정(피해 20)', cd: 6.0, tAtk: 22, tHp: 52, tDur: 12, trDmg: 20 }
     ]
   },
   pelican: {
@@ -490,11 +495,11 @@ export const BIRD_TEMPLATES = {
     id: 'pigeon', name: '비둘기', grade: GRADES.MYTHIC, type: '감염 처형형',
     desc: '감염 3스택 적용 시 대상 즉시 처치 후 독가스를 방출합니다.',
     levels: [
-      { level: 1, atk: 7, interval: 1.10, range: 120, cost: 0, effectDesc: '3스택 즉사+독가스(1.5반경, 5/초, 3초)', gasRad: 40, gasDmg: 5, gasDur: 3 },
-      { level: 2, atk: 9, interval: 0.98, range: 128, cost: 620, effectDesc: '독가스(1.7반경, 7/초, 3초)', gasRad: 45, gasDmg: 7, gasDur: 3 },
-      { level: 3, atk: 11, interval: 0.85, range: 136, cost: 1280, effectDesc: '독가스(1.9반경, 9/초, 4초)', gasRad: 50, gasDmg: 9, gasDur: 4 },
-      { level: 4, atk: 14, interval: 0.77, range: 144, cost: 2160, effectDesc: '독가스(2.1반경, 12/초, 4초)', gasRad: 55, gasDmg: 12, gasDur: 4 },
-      { level: 5, atk: 18, interval: 0.68, range: 152, cost: 3400, effectDesc: '독가스(2.3반경, 16/초, 5초)', gasRad: 60, gasDmg: 16, gasDur: 5 }
+      { level: 1, atk: 0, interval: 1.10, range: 120, cost: 0, effectDesc: '3스택 즉사+독가스(1.5반경, 5/초, 3초)', gasRad: 40, gasDmg: 5, gasDur: 3 },
+      { level: 2, atk: 0, interval: 0.98, range: 128, cost: 620, effectDesc: '독가스(1.7반경, 7/초, 3초)', gasRad: 45, gasDmg: 7, gasDur: 3 },
+      { level: 3, atk: 0, interval: 0.85, range: 136, cost: 1280, effectDesc: '독가스(1.9반경, 9/초, 4초)', gasRad: 50, gasDmg: 9, gasDur: 4 },
+      { level: 4, atk: 0, interval: 0.77, range: 144, cost: 2160, effectDesc: '독가스(2.1반경, 12/초, 4초)', gasRad: 55, gasDmg: 12, gasDur: 4 },
+      { level: 5, atk: 0, interval: 0.68, range: 152, cost: 3400, effectDesc: '독가스(2.3반경, 16/초, 5초)', gasRad: 60, gasDmg: 16, gasDur: 5 }
     ]
   },
   firebug: {
@@ -535,7 +540,7 @@ export const BIRD_TEMPLATES = {
 const DPS_DAMAGE_KEYS = [
   'atk', 'atkMin', 'atkMax', 'burnDmg', 'poisonDmg', 'explodeDmg',
   'chickAtk', 'deathExplode', 'turretAtk', 'dotDmg', 'lavaDmg',
-  'tAtk', 'trDmg', 'gasDmg', 'globalBurn', 'atkPct'
+  'tAtk', 'trDmg', 'gasDmg', 'globalBurn', 'atkPct', 'meleeAtk', 'chickMeleeAtk'
 ];
 
 function scaleDamageValue(value, mult) {
@@ -653,23 +658,149 @@ export const WEATHER_TYPES = {
   aurora: { id: 'aurora', name: '오로라', chance: 0.005, mutationId: 'aurora', bonusChance: 0.10, naturalDouble: true, icon: '🌌' }
 };
 
+// 암시장 판매 품목
+export const BLACK_MARKET_ITEMS = {
+  weather_changer: {
+    id: 'weather_changer', name: '날씨 조작기', icon: '🌦️', price: 50,
+    desc: '날씨를 확률표에 따라 즉시 무작위로 다시 뽑습니다.'
+  },
+  shop_reroll_charm: {
+    id: 'shop_reroll_charm', name: '상점 새로고침권', icon: '🎲', price: 20,
+    desc: '일일 새로고침 횟수·깃털 비용 없이 상점 진열을 즉시 새로고침합니다.'
+  },
+  feather_pouch: {
+    id: 'feather_pouch', name: '깃털 주머니', icon: '🪶', price: 40,
+    desc: '깃털 300개를 즉시 획득합니다.'
+  },
+  sealed_egg_bundle: {
+    id: 'sealed_egg_bundle', name: '봉인된 알 상자', icon: '🥚', price: 70,
+    desc: '모든 등급의 알을 1개씩 획득합니다.'
+  },
+  sealed_seedbox_bundle: {
+    id: 'sealed_seedbox_bundle', name: '봉인된 씨앗 상자', icon: '🎁', price: 90,
+    desc: '모든 등급의 씨앗 상자를 1개씩 획득합니다.'
+  },
+  free_regurgitate_ticket: {
+    id: 'free_regurgitate_ticket', name: '무료 토해내기권', icon: '🎫', price: 60,
+    desc: '다음 모이 토해내기 1회의 깃털 비용을 면제해 줍니다.'
+  }
+};
+
+// 암시장 전용 재화 (스테이지 클리어 시 확률적으로 드롭)
+export const STRANGE_GEM = { id: 'strangeGem', name: '이상한 보석', icon: '💜', color: '#a855f7' };
+
+// 스테이지별 이상한 보석 드롭 구성표
+export const STAGE_GEM_DROPS = {
+  1: { chance: 0.05, min: 1, max: 10 },
+  2: { chance: 0.07, min: 2, max: 12 }
+};
+
+// 스테이지 클리어 이상한 보석 드롭 판정
+export function rollStageGemDrop(stageId = 1) {
+  const cfg = STAGE_GEM_DROPS[stageId] || STAGE_GEM_DROPS[1];
+  if (Math.random() >= cfg.chance) return 0;
+  return cfg.min + Math.floor(Math.random() * (cfg.max - cfg.min + 1));
+}
+
+// 스테이지 클리어 시 확률적으로 드롭되는 모이 제작 재료 (스테이지별 구성표)
+export const STAGE_MATERIAL_DROPS = {
+  1: [
+    { id: 'wood_scrap', name: '나뭇조각', grade: GRADES.NORMAL, icon: '🪵', chance: 0.70, min: 1, max: 4 },
+    { id: 'stone', name: '돌', grade: GRADES.UNCOMMON, icon: '🪨', chance: 0.40, min: 1, max: 3 },
+    { id: 'cube_fragment', name: '큐브 조각', grade: GRADES.EPIC, icon: '🧊', chance: 0.03, min: 1, max: 2 }
+  ],
+  2: [
+    { id: 'wood_scrap', name: '나뭇조각', grade: GRADES.NORMAL, icon: '🪵', chance: 0.70, min: 2, max: 5 },
+    { id: 'stone', name: '돌', grade: GRADES.UNCOMMON, icon: '🪨', chance: 0.45, min: 1, max: 4 },
+    { id: 'cube_fragment', name: '큐브 조각', grade: GRADES.EPIC, icon: '🧊', chance: 0.05, min: 1, max: 3 }
+  ]
+};
+
+// --- 모이 버프 효과 ---
+// 각 모이는 하나의 "계열"을 강화하며, 그 계열에 속한 특수 능력 수치까지 함께 오른다.
+// 예) 공격력 계열은 기본 공격력뿐 아니라 병아리 공격력·용암 피해·독가스 피해까지 적용.
+
+// 공격력 계열 (곱연산)
+export const FEED_DAMAGE_KEYS = [
+  'atk', 'atkMin', 'atkMax', 'burnDmg', 'poisonDmg', 'explodeDmg', 'chickAtk',
+  'deathExplode', 'turretAtk', 'dotDmg', 'lavaDmg', 'tAtk', 'trDmg',
+  'gasDmg', 'globalBurn', 'atkPct'
+];
+
+// 공격속도(쿨타임) 계열 — 값이 작을수록 빠르므로 "감소율"로 표기하고 그대로 곱한다
+export const FEED_COOLDOWN_KEYS = [
+  'interval', 'summonCD', 'turretCD', 'lavaCD', 'pulseCD', 'intervalCD',
+  'cd', 'healCD', 'switchCD', 'eggInterval'
+];
+
+// 사거리/범위 계열 (곱연산)
+export const FEED_RANGE_KEYS = [
+  'range', 'aoeRadius', 'auraRange', 'gasRad', 'lavaRadius', 'explodeRadius'
+];
+
+// damage/range는 곱연산 배율, cooldown은 쿨타임에 그대로 곱하는 값(1 미만 = 감소)
+export const FEED_EFFECTS = {
+  wood_feed:  { damage: 1.05, desc: '공격력 +5%' },
+  hard_feed:  { damage: 1.10, desc: '공격력 +10%' },
+  cubic_feed: { damage: 1.15, cooldown: 0.90, desc: '공격력 +15%, 공격속도 -10%' }
+};
+
+// 모이를 토해내게 하는 비용 (등급별, 깃털)
+export const FEED_REGURGITATE_COST = {
+  [GRADES.NORMAL]: 50,
+  [GRADES.UNCOMMON]: 150,
+  [GRADES.RARE]: 400,
+  [GRADES.EPIC]: 1000,
+  [GRADES.LEGENDARY]: 2500,
+  [GRADES.MYTHIC]: 6000
+};
+
+// 재료 + 깃털을 조합해 만드는 모이 제작 레시피 (버프 효과는 추후 추가 예정)
+export const FEED_RECIPES = {
+  wood_feed: {
+    id: 'wood_feed', name: '나무 모이', grade: GRADES.NORMAL, icon: '🪵',
+    materialId: 'wood_scrap', materialCost: 3, featherCost: 20
+  },
+  hard_feed: {
+    id: 'hard_feed', name: '단단한 모이', grade: GRADES.UNCOMMON, icon: '🪨',
+    materialId: 'stone', materialCost: 3, featherCost: 60
+  },
+  cubic_feed: {
+    id: 'cubic_feed', name: '큐빅 모이', grade: GRADES.EPIC, icon: '🧊',
+    materialId: 'cube_fragment', materialCost: 2, featherCost: 150
+  }
+};
+
+// 스테이지 클리어 재료 드롭 판정 (각 재료마다 독립적으로 확률/개수 판정)
+export function rollStageMaterialDrops(stageId = 1) {
+  const table = STAGE_MATERIAL_DROPS[stageId] || STAGE_MATERIAL_DROPS[1];
+  const drops = [];
+  table.forEach(mat => {
+    if (Math.random() < mat.chance) {
+      const qty = mat.min + Math.floor(Math.random() * (mat.max - mat.min + 1));
+      drops.push({ id: mat.id, name: mat.name, icon: mat.icon, grade: mat.grade, qty });
+    }
+  });
+  return drops;
+}
+
 // 12-5-1. 몬스터 스탯 정의
 export const MONSTER_TEMPLATES = {
   basic: { id: 'basic', name: '기본 몬스터', hp: 2, speed: 1.0, icon: '👾', typeDesc: '일반형' },
   fast: { id: 'fast', name: '빠른 몬스터', hp: 3, speed: 2.0, icon: '⚡', typeDesc: '빠른형' },
   heavy: { id: 'heavy', name: '무거운 몬스터', hp: 8, speed: 0.5, icon: '🛡️', typeDesc: '탱커형' },
   gen_boss: { id: 'gen_boss', name: '일반 보스', hp: 140, speed: 0.8, icon: '👑', isBoss: true, typeDesc: '보스형' },
-  special: { id: 'special', name: '특이한 몬스터', hp: 60, speed: 1.0, icon: '🌀', typeDesc: '방어형' },
-  shaman: { id: 'shaman', name: '주술사 몬스터', hp: 300, speed: 1.0, icon: '🧙', isShaman: true, typeDesc: '지원형' },
-  skeleton: { id: 'skeleton', name: '해골', hp: 40, speed: 1.0, icon: '💀' },
-  fast_skeleton: { id: 'fast_skeleton', name: '빠른 해골', hp: 30, speed: 1.5, icon: '💀⚡' },
-  splitter: { id: 'splitter', name: '분열 몬스터', hp: 80, speed: 1.0, icon: '🫧', isSplitter: true, typeDesc: '분열형' },
-  split_sub: { id: 'split_sub', name: '분열체', hp: 50, speed: 1.5, icon: '🫧' },
-  swift: { id: 'swift', name: '신속 몬스터', hp: 90, speed: 4.0, icon: '💨', typeDesc: '빠른형' },
-  special_boss: { id: 'special_boss', name: '특이한 보스', hp: 1200, speed: 0.5, icon: '👺', isBoss: true },
-  swift_boss: { id: 'swift_boss', name: '신속 보스', hp: 1600, speed: 2.0, icon: '👹', isBoss: true },
-  splitter_boss: { id: 'splitter_boss', name: '분열자 보스', hp: 2000, speed: 1.0, icon: '🐙', isBoss: true, isSplitterBoss: true },
-  cubic: { id: 'cubic', name: '큐빅 (최종 보스)', hp: 10000, speed: 0.4, icon: '🧊', isCubic: true }
+  special: { id: 'special', name: '특이한 몬스터', hp: 35, speed: 1.0, icon: '🌀', typeDesc: '방어형' },
+  shaman: { id: 'shaman', name: '주술사 몬스터', hp: 60, speed: 1.0, icon: '🧙', isShaman: true, typeDesc: '지원형' },
+  skeleton: { id: 'skeleton', name: '해골', hp: 18, speed: 1.0, icon: '💀' },
+  fast_skeleton: { id: 'fast_skeleton', name: '빠른 해골', hp: 14, speed: 1.5, icon: '💀⚡' },
+  splitter: { id: 'splitter', name: '분열 몬스터', hp: 15, speed: 1.0, icon: '🫧', isSplitter: true, typeDesc: '분열형' },
+  split_sub: { id: 'split_sub', name: '분열체', hp: 8, speed: 1.5, icon: '🫧' },
+  swift: { id: 'swift', name: '신속 몬스터', hp: 15, speed: 4.0, icon: '💨', typeDesc: '빠른형' },
+  special_boss: { id: 'special_boss', name: '특이한 보스', hp: 150, speed: 0.5, icon: '👺', isBoss: true },
+  swift_boss: { id: 'swift_boss', name: '신속 보스', hp: 70, speed: 2.0, icon: '👹', isBoss: true },
+  splitter_boss: { id: 'splitter_boss', name: '분열자 보스', hp: 180, speed: 1.0, icon: '🐙', isBoss: true, isSplitterBoss: true },
+  cubic: { id: 'cubic', name: '큐빅 (최종 보스)', hp: 1400, speed: 0.4, icon: '🧊', isCubic: true }
 };
 
 // 12-5-2. 25 웨이브 몬스터 구성표
@@ -701,8 +832,66 @@ export const WAVE_CONFIG = [
   { wave: 25, mobs: [{ type: 'cubic', count: 1 }] }
 ];
 
+// 12-5-2b. 2스테이지 25 웨이브 몬스터 구성표 (1스테이지보다 전반적으로 더 빡빡하게 구성)
+export const WAVE_CONFIG_STAGE2 = [
+  { wave: 1, mobs: [{ type: 'basic', count: 12 }] },
+  { wave: 2, mobs: [{ type: 'basic', count: 16 }, { type: 'fast', count: 4 }] },
+  { wave: 3, mobs: [{ type: 'basic', count: 14 }, { type: 'fast', count: 10 }] },
+  { wave: 4, mobs: [{ type: 'fast', count: 14 }, { type: 'heavy', count: 6 }] },
+  { wave: 5, mobs: [{ type: 'basic', count: 14 }, { type: 'fast', count: 12 }, { type: 'heavy', count: 6 }] },
+  { wave: 6, mobs: [{ type: 'heavy', count: 12 }, { type: 'special', count: 6 }] },
+  { wave: 7, mobs: [{ type: 'basic', count: 16 }, { type: 'fast', count: 14 }, { type: 'heavy', count: 8 }] },
+  { wave: 8, mobs: [{ type: 'special', count: 10 }, { type: 'heavy', count: 10 }] },
+  { wave: 9, mobs: [{ type: 'gen_boss', count: 1 }, { type: 'basic', count: 20 }, { type: 'fast', count: 10 }] },
+  { wave: 10, mobs: [{ type: 'skeleton', count: 14 }, { type: 'fast_skeleton', count: 8 }] },
+  { wave: 11, mobs: [{ type: 'special', count: 14 }, { type: 'heavy', count: 12 }] },
+  { wave: 12, mobs: [{ type: 'shaman', count: 3 }, { type: 'heavy', count: 12 }] },
+  { wave: 13, mobs: [{ type: 'shaman', count: 4 }, { type: 'special', count: 14 }] },
+  { wave: 14, mobs: [{ type: 'special_boss', count: 1 }, { type: 'special', count: 18 }] },
+  { wave: 15, mobs: [{ type: 'swift', count: 16 }, { type: 'heavy', count: 10 }] },
+  { wave: 16, mobs: [{ type: 'splitter', count: 10 }, { type: 'swift', count: 12 }] },
+  { wave: 17, mobs: [{ type: 'swift_boss', count: 1 }, { type: 'swift', count: 14 }] },
+  { wave: 18, mobs: [{ type: 'splitter', count: 14 }, { type: 'swift', count: 16 }, { type: 'shaman', count: 3 }] },
+  { wave: 19, mobs: [{ type: 'shaman', count: 5 }, { type: 'splitter', count: 14 }, { type: 'swift', count: 18 }] },
+  { wave: 20, mobs: [{ type: 'splitter_boss', count: 1 }, { type: 'splitter', count: 14 }] },
+  { wave: 21, mobs: [{ type: 'shaman', count: 6 }, { type: 'splitter', count: 14 }, { type: 'swift', count: 20 }] },
+  { wave: 22, mobs: [{ type: 'special', count: 18 }, { type: 'splitter', count: 16 }, { type: 'swift', count: 22 }] },
+  { wave: 23, mobs: [{ type: 'shaman', count: 6 }, { type: 'heavy', count: 18 }, { type: 'swift', count: 24 }] },
+  { wave: 24, mobs: [{ type: 'gen_boss', count: 1 }, { type: 'special_boss', count: 1 }, { type: 'splitter', count: 10 }, { type: 'shaman', count: 4 }] },
+  { wave: 25, mobs: [{ type: 'cubic', count: 1 }] }
+];
+
+// 12-5-2c. 스테이지(챕터) 목록 — 경로/웨이브 구성/체력 배율/해금 조건을 스테이지별로 관리
+export const STAGES = {
+  1: {
+    id: 1,
+    name: '파일럿 스테이지',
+    badge: 'STAGE 1',
+    desc: '기초 방어 훈련장입니다. 새를 배치해 25웨이브를 막아내고 성을 지켜내세요!',
+    waveConfig: WAVE_CONFIG,
+    hpMult: 1.0,
+    path: [
+      [0, 140], [240, 140], [240, 340], [520, 340], [520, 200], [800, 200]
+    ],
+    unlockRequires: null // 항상 해금
+  },
+  2: {
+    id: 2,
+    name: '정글 전초기지',
+    badge: 'STAGE 2',
+    desc: '한층 거칠어진 몬스터들이 기다립니다. 더 강한 편성으로 25웨이브를 돌파하세요!',
+    waveConfig: WAVE_CONFIG_STAGE2,
+    hpMult: 1.6,
+    path: [
+      [0, 80], [200, 80], [200, 260], [400, 260], [400, 80], [600, 80], [600, 340], [800, 340]
+    ],
+    unlockRequires: 1 // 1스테이지 클리어 필요
+  }
+};
+
 const DEFAULT_STATE = {
   feathers: 300,    // 메인 재화 (알/씨앗 구매, 모이 제작)
+  strangeGems: 0,   // 암시장 전용 재화 (스테이지 클리어 확률 드롭)
   inRunCoins: 0,    // 스테이지 인런 전용 재화
   castleMaxHP: 20,
   castleHP: 20,
@@ -711,7 +900,7 @@ const DEFAULT_STATE = {
   
   // 플레이어가 보유한 새 목록 ({ id, birdId, level: 1, count: 1, enhanceLevel: 0, buff: null })
   ownedBirds: [
-    { id: 'sparrow_init', birdId: 'sparrow', level: 1, count: 1, enhanceLevel: 0, buff: null }
+    { id: 'sparrow_init', birdId: 'sparrow', level: 1, count: 1, enhanceLevel: 0, buff: null, feed: null }
   ],
   deck: ['sparrow'], // 전투 덱 (최대 5종, 서로 다른 새)
   
@@ -720,7 +909,8 @@ const DEFAULT_STATE = {
     seedBoxes: { normal: 1, uncommon: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 },
     seeds: { carrot: 3, tomato: 2 }, // 확정 씨앗 개수 ({ [cropId]: count })
     crops: {}, // 수확한 작물 저장 ({ [cropId]: [{ id, cropId, seedMutation, naturalMutation, weatherMutation, totalMult, isUnstable, unstableMult }] })
-    baits: []  // 제작된 모이 버프들
+    materials: { wood_scrap: 0, stone: 0, cube_fragment: 0 }, // 스테이지 클리어 드롭 재료
+    feeds: { wood_feed: 0, hard_feed: 0, cubic_feed: 0 }      // 재료+깃털로 제작한 모이 (효과는 추후 추가 예정)
   },
 
   farmPlots: [
@@ -742,12 +932,27 @@ const DEFAULT_STATE = {
   shopItems: [],
   dailyResetCount: 0,
 
+  // 암시장 (일정 확률로 등장하는 한정 상인)
+  blackMarket: {
+    active: false,
+    timeLeft: 0,
+    nextCheckIn: 60,
+    items: []
+  },
+  // 암시장에서 구매한 "무료 토해내기권" 보유 개수 (다음 토해내기 비용 면제)
+  freeRegurgitateTickets: 0,
+
   // 몬스터 도감 단계 (유형별 encounter count)
   monsterCodex: {},
 
   // 스테이지 최고 기록
   highWave: 0,
-  stars: 0
+  stars: 0,
+
+  // 해금된 최고 스테이지 (1부터 시작, 클리어할 때마다 +1)
+  unlockedStage: 1,
+  // 방어전 시작 화면에서 현재 선택 중인 스테이지
+  selectedStage: 1
 };
 
 export class StateManager {
@@ -778,6 +983,7 @@ export class StateManager {
         if (Array.isArray(this.state.ownedBirds)) {
           this.state.ownedBirds.forEach(b => {
             if (typeof b.enhanceLevel !== 'number') b.enhanceLevel = 0;
+            if (b.feed === undefined) b.feed = null;
           });
         }
         if (this.state.farmPlots) {
@@ -822,6 +1028,29 @@ export class StateManager {
     return false;
   }
 
+  // --- 이상한 보석 (암시장 전용 재화) ---
+  addStrangeGems(amt) {
+    this.state.strangeGems = Math.max(0, (this.state.strangeGems || 0) + amt);
+    this.notify();
+  }
+
+  // --- 스테이지(챕터) 해금 ---
+  unlockStage(stageId) {
+    if (stageId > (this.state.unlockedStage || 1)) {
+      this.state.unlockedStage = stageId;
+      this.notify();
+    }
+  }
+
+  spendStrangeGems(amt) {
+    if ((this.state.strangeGems || 0) >= amt) {
+      this.state.strangeGems -= amt;
+      this.notify();
+      return true;
+    }
+    return false;
+  }
+
   // --- 어드민 기능 ---
   addEggsOfAllGrades(count = 10) {
     if (!this.state.inventory.eggs) {
@@ -834,6 +1063,17 @@ export class StateManager {
     this.notify();
   }
 
+  addSeedBoxesOfAllGrades(count = 10) {
+    if (!this.state.inventory.seedBoxes) {
+      this.state.inventory.seedBoxes = { normal: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 };
+    }
+    const grades = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC];
+    grades.forEach(g => {
+      this.state.inventory.seedBoxes[g] = (this.state.inventory.seedBoxes[g] || 0) + count;
+    });
+    this.notify();
+  }
+
   setInfiniteFeathers() {
     this.state.feathers = 999999999;
     this.notify();
@@ -841,7 +1081,7 @@ export class StateManager {
 
   unlockAllBirds(countPerBird = 10) {
     for (let bKey in BIRD_TEMPLATES) {
-      const existing = this.state.ownedBirds.find(b => b.birdId === bKey);
+      const existing = this.state.ownedBirds.find(b => b.birdId === bKey && !b.feed);
       if (existing) {
         existing.count += countPerBird;
       } else {
@@ -851,7 +1091,8 @@ export class StateManager {
           level: 1,
           count: countPerBird,
           enhanceLevel: 0,
-          buff: null
+          buff: null,
+          feed: null
         });
       }
     }
@@ -875,10 +1116,113 @@ export class StateManager {
     this.notify();
   }
 
+  // 스테이지 클리어 드롭 재료 추가
+  addMaterial(materialId, qty) {
+    if (!this.state.inventory.materials) {
+      this.state.inventory.materials = { wood_scrap: 0, stone: 0, cube_fragment: 0 };
+    }
+    this.state.inventory.materials[materialId] = (this.state.inventory.materials[materialId] || 0) + qty;
+  }
+
+  // --- 모이 먹이기 / 토해내기 ---
+
+  // 새에게 모이를 먹임. 같은 새를 여러 마리 보유 중이면 먹은 개체를 독립 분리한다.
+  feedBirdEntry(entryId, feedId) {
+    const recipe = FEED_RECIPES[feedId];
+    if (!recipe) return { ok: false, reason: 'invalid' };
+    if (!this.state.inventory.feeds) return { ok: false, reason: 'noFeed' };
+    if ((this.state.inventory.feeds[feedId] || 0) <= 0) return { ok: false, reason: 'noFeed' };
+
+    const entry = this.state.ownedBirds.find(b => b.id === entryId);
+    if (!entry) return { ok: false, reason: 'missing' };
+    if (entry.feed) return { ok: false, reason: 'alreadyFed' };
+
+    this.state.inventory.feeds[feedId]--;
+
+    const effect = FEED_EFFECTS[feedId] || {};
+    const feedData = {
+      id: recipe.id, name: recipe.name, icon: recipe.icon, grade: recipe.grade,
+      damage: effect.damage || 1, cooldown: effect.cooldown || 1, range: effect.range || 1,
+      desc: effect.desc || ''
+    };
+
+    if (entry.count > 1) {
+      // 한 마리만 분리해 독립 개체로 만들고 모이를 적용
+      entry.count--;
+      this.state.ownedBirds.push({
+        id: 'bird_fed_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        birdId: entry.birdId,
+        level: entry.level || 1,
+        count: 1,
+        enhanceLevel: entry.enhanceLevel || 0,
+        buff: null,
+        feed: feedData
+      });
+    } else {
+      entry.feed = feedData;
+    }
+
+    this.notify();
+    return { ok: true };
+  }
+
+  // 모이를 토해내게 함 (등급별 깃털 비용). 같은 새의 무급식 개체가 있으면 다시 합친다.
+  regurgitateFeed(entryId) {
+    const entry = this.state.ownedBirds.find(b => b.id === entryId);
+    if (!entry || !entry.feed) return { ok: false, reason: 'noFeed' };
+
+    const cost = FEED_REGURGITATE_COST[entry.feed.grade] || 100;
+    const usedFreeTicket = (this.state.freeRegurgitateTickets || 0) > 0;
+    if (!usedFreeTicket && this.state.feathers < cost) return { ok: false, reason: 'feathers', cost };
+
+    if (usedFreeTicket) {
+      this.state.freeRegurgitateTickets--;
+    } else {
+      this.state.feathers -= cost;
+    }
+    entry.feed = null;
+
+    // 같은 새의 모이 없는 다른 개체가 있으면 합쳐서 목록을 정리
+    const twin = this.state.ownedBirds.find(
+      b => b !== entry && b.birdId === entry.birdId && !b.feed && (b.enhanceLevel || 0) === (entry.enhanceLevel || 0)
+    );
+    if (twin) {
+      twin.count += entry.count;
+      this.state.ownedBirds = this.state.ownedBirds.filter(b => b !== entry);
+    }
+
+    this.notify();
+    return { ok: true, cost: usedFreeTicket ? 0 : cost, usedFreeTicket };
+  }
+
+  // 재료 + 깃털로 모이 제작
+  craftFeed(feedId) {
+    const recipe = FEED_RECIPES[feedId];
+    if (!recipe) return { ok: false, reason: 'invalid' };
+
+    if (!this.state.inventory.materials) {
+      this.state.inventory.materials = { wood_scrap: 0, stone: 0, cube_fragment: 0 };
+    }
+    if (!this.state.inventory.feeds) {
+      this.state.inventory.feeds = { wood_feed: 0, hard_feed: 0, cubic_feed: 0 };
+    }
+
+    const haveMaterial = this.state.inventory.materials[recipe.materialId] || 0;
+    if (haveMaterial < recipe.materialCost) return { ok: false, reason: 'material' };
+    if (this.state.feathers < recipe.featherCost) return { ok: false, reason: 'feathers' };
+
+    this.state.inventory.materials[recipe.materialId] -= recipe.materialCost;
+    this.state.feathers -= recipe.featherCost;
+    this.state.inventory.feeds[feedId] = (this.state.inventory.feeds[feedId] || 0) + 1;
+    this.notify();
+    return { ok: true };
+  }
+
   addBird(birdId) {
     const template = BIRD_TEMPLATES[birdId];
     if (!template) return;
-    const existing = this.state.ownedBirds.find(b => b.birdId === birdId);
+    // 모이를 먹은 개체는 독립 개체이므로 합치지 않고, 모이 없는 개체에만 누적
+    const existing = this.state.ownedBirds.find(b => b.birdId === birdId && !b.feed);
     if (existing) {
       existing.count++;
     } else {
@@ -888,7 +1232,8 @@ export class StateManager {
         level: 1,
         count: 1,
         enhanceLevel: 0,
-        buff: null
+        buff: null,
+        feed: null
       });
     }
     this.notify();
@@ -899,7 +1244,7 @@ export class StateManager {
     if (!has) return false;
     const idx = this.state.deck.indexOf(birdId);
     if (idx !== -1) {
-      if (this.state.deck.length <= 1) return false;
+      // 덱을 비우는 것도 허용 (전투 시작 전에 다시 장착하면 됨)
       this.state.deck.splice(idx, 1);
     } else {
       if (this.state.deck.includes(birdId)) return false;
