@@ -36,7 +36,7 @@ export class DeckSystem {
   // 보유한 새 중 가장 높은 등급순으로 5마리를 자동 장착
   equipBest() {
     const state = stateManager.state;
-    const order = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC];
+    const order = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC, GRADES.GLORIOUS];
 
     const candidates = state.ownedBirds
       .filter(b => b.count > 0 && BIRD_TEMPLATES[b.birdId])
@@ -118,7 +118,7 @@ export class DeckSystem {
     list.sort((a, b) => {
       const ga = BIRD_TEMPLATES[a.birdId]?.grade || GRADES.NORMAL;
       const gb = BIRD_TEMPLATES[b.birdId]?.grade || GRADES.NORMAL;
-      const order = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC];
+      const order = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC, GRADES.GLORIOUS];
       return order.indexOf(ga) - order.indexOf(gb);
     });
 

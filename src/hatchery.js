@@ -56,21 +56,22 @@ export class HatcherySystem {
     const feeds = stateManager.state.inventory.feeds || {};
     this.feedGrid.innerHTML = '';
 
-    const owned = Object.keys(FEED_RECIPES).filter(id => (feeds[id] || 0) > 0);
+    // 제작 가능한 모이(FEED_RECIPES)든 암시장 전용 모이(FEED_EFFECTS에만 등록)든 보유 중이면 전부 표시
+    const owned = Object.keys(FEED_EFFECTS).filter(id => (feeds[id] || 0) > 0);
     if (owned.length === 0) {
       this.feedGrid.innerHTML = '<p class="feed-inventory-empty">보유한 아이템이 없습니다. 강화소의 모이 제작소에서 모이를 만들어보세요!</p>';
       return;
     }
 
     owned.forEach(feedId => {
-      const recipe = FEED_RECIPES[feedId];
+      const info = FEED_EFFECTS[feedId];
       const card = document.createElement('div');
       card.className = 'shop-item feed-item glass-panel';
       card.innerHTML = `
-        <div class="shop-item-icon" style="font-size: 40px; filter: drop-shadow(0 0 10px ${GRADE_COLORS[recipe.grade]});">${recipe.icon}</div>
-        <h4>${recipe.name}</h4>
-        <span class="grade-badge" style="color:${GRADE_COLORS[recipe.grade]}">${GRADE_NAMES[recipe.grade]}</span>
-        <p class="feed-effect-text">${(FEED_EFFECTS[feedId] || {}).desc || ''}</p>
+        <div class="shop-item-icon" style="font-size: 40px; filter: drop-shadow(0 0 10px ${GRADE_COLORS[info.grade]});">${info.icon}</div>
+        <h4>${info.name}</h4>
+        <span class="grade-badge" style="color:${GRADE_COLORS[info.grade]}">${GRADE_NAMES[info.grade]}</span>
+        <p class="feed-effect-text">${info.desc || ''}</p>
         <p>보유: <b>${feeds[feedId]}개</b></p>
         <button class="btn btn-success btn-sm w-100 btn-use-feed">사용</button>
       `;
@@ -79,11 +80,45 @@ export class HatcherySystem {
     });
   }
 
+  // --- 유적 알 아이템 칸 ---
+  renderRuinEggInventory() {
+    const grid = document.getElementById('ruin-egg-inventory-grid');
+    if (!grid) return;
+    const count = stateManager.state.inventory.ruinEggs || 0;
+    grid.innerHTML = '';
+    if (count <= 0) {
+      grid.innerHTML = '<p class="feed-inventory-empty">보유한 유적 알이 없습니다. 강화소에서 유적 조각 10개로 제작해보세요!</p>';
+      return;
+    }
+    const card = document.createElement('div');
+    card.className = 'shop-item feed-item glass-panel';
+    card.innerHTML = `
+      <div class="shop-item-icon" style="font-size: 40px;">🗿</div>
+      <h4>유적 알</h4>
+      <p>보유: <b>${count}개</b></p>
+      <button class="btn btn-success btn-sm w-100 btn-open-ruin-egg">열기</button>
+    `;
+    card.querySelector('.btn-open-ruin-egg').addEventListener('click', () => this.openRuinEggUI());
+    grid.appendChild(card);
+  }
+
+  openRuinEggUI() {
+    const result = stateManager.openRuinEgg();
+    if (!result.ok) {
+      alert('보유한 유적 알이 없습니다.');
+      return;
+    }
+    const template = BIRD_TEMPLATES[result.birdId];
+    this.playHatchAnimation(GRADES.LEGENDARY, template.grade, template);
+    stateManager.save();
+    this.render();
+  }
+
   openFeedUse(feedId) {
     this.pendingFeed = feedId;
-    const recipe = FEED_RECIPES[feedId];
+    const recipe = FEED_EFFECTS[feedId];
     document.getElementById('feed-use-title').textContent = `${recipe.icon} ${recipe.name} 사용`;
-    const effectDesc = (FEED_EFFECTS[feedId] || {}).desc || '';
+    const effectDesc = recipe.desc || '';
     document.getElementById('feed-use-desc').innerHTML =
       `효과: <b style="color:${GRADE_COLORS[recipe.grade]}">${effectDesc}</b><br>` +
       '모이를 먹일 새를 선택하세요. 새 한 마리당 모이는 하나만 먹일 수 있습니다.';
@@ -277,6 +312,7 @@ export class HatcherySystem {
 
   render() {
     this.renderFeedInventory();
+    this.renderRuinEggInventory();
     if (!this.container) return;
     this.container.innerHTML = '';
     const state = stateManager.state;

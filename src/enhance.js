@@ -4,7 +4,7 @@ import {
   stateManager, BIRD_TEMPLATES, GRADE_NAMES, GRADE_COLORS, GRADES,
   ENHANCE_MAX, ENHANCE_COPY_COST, ENHANCE_ATK_BONUS,
   getEnhanceFeatherCost, getEnhanceMult, formatEnhanceStars,
-  STAGE_MATERIAL_DROPS, FEED_RECIPES, FEED_EFFECTS
+  STAGE_MATERIAL_DROPS, FEED_RECIPES, FEED_EFFECTS, RUIN_EGG_RECIPE
 } from './state.js';
 import { getBirdSVG, soundEngine } from './assets.js';
 
@@ -40,6 +40,7 @@ export class EnhanceSystem {
     if (this.selectedBirdId) this.renderDetail(this.selectedBirdId);
     else this.renderEmptyDetail();
     this.renderFeedCraft();
+    this.renderRuinEggCraft();
   }
 
   // --- 모이 제작소: 재료(스테이지 드롭) + 깃털 조합 ---
@@ -108,6 +109,42 @@ export class EnhanceSystem {
     this.render();
   }
 
+  // --- 유적 알 제작소: 암시장에서 구매한 유적 조각 10개로 유적 알 1개 제작 ---
+  renderRuinEggCraft() {
+    const grid = document.getElementById('ruin-egg-recipe-grid');
+    if (!grid) return;
+    const state = stateManager.state;
+    const have = (state.inventory.materials || {}).ruin_fragment || 0;
+    const canCraft = have >= RUIN_EGG_RECIPE.materialCost;
+    const owned = state.inventory.ruinEggs || 0;
+
+    grid.innerHTML = `
+      <div class="feed-recipe-card glass-panel">
+        <div class="feed-recipe-icon">🗿➜🥚</div>
+        <h4>유적 알</h4>
+        <p class="feed-effect-text">에픽~영광스러운 등급의 암시장 전용 새를 뽑을 수 있는 알</p>
+        <div class="feed-recipe-cost">
+          <span class="${canCraft ? '' : 'cost-lack'}">🗿 ${RUIN_EGG_RECIPE.materialCost}개 (보유 ${have})</span>
+        </div>
+        <div class="feed-recipe-owned">보유: ${owned}개</div>
+        <button class="btn ${canCraft ? 'btn-success' : 'btn-secondary'} btn-sm w-100" ${canCraft ? '' : 'disabled'}>제작하기</button>
+      </div>
+    `;
+    grid.querySelector('button').addEventListener('click', () => this.craftRuinEgg());
+  }
+
+  craftRuinEgg() {
+    if (!confirm(`유적 조각 ${RUIN_EGG_RECIPE.materialCost}개를 소모해 [유적 알]을 제작합니다.\n\n정말 제작하시겠습니까? 취소할 수 없습니다.`)) return;
+
+    const result = stateManager.craftRuinEgg();
+    if (!result.ok) {
+      alert('유적 조각이 부족합니다.');
+      return;
+    }
+    soundEngine.playHatch();
+    this.render();
+  }
+
   renderList() {
     if (!this.grid) return;
     this.grid.innerHTML = '';
@@ -118,7 +155,7 @@ export class EnhanceSystem {
       owned = owned.filter(b => BIRD_TEMPLATES[b.birdId]?.grade === this.activeGradeFilter);
     }
 
-    const order = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC];
+    const order = [GRADES.NORMAL, GRADES.UNCOMMON, GRADES.RARE, GRADES.EPIC, GRADES.LEGENDARY, GRADES.MYTHIC, GRADES.GLORIOUS];
     owned.sort((a, b) => {
       const ga = BIRD_TEMPLATES[a.birdId]?.grade || GRADES.NORMAL;
       const gb = BIRD_TEMPLATES[b.birdId]?.grade || GRADES.NORMAL;

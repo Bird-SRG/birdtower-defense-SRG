@@ -1,6 +1,6 @@
 /* Bird Tower Defense - 6-Slot Dynamic Shop System (Full GDD Specification) */
 
-import { stateManager, EGG_PRICES, SHOP_EGG_SLOT_PROBS, SEED_BOX_GACHA_PROBS, GRADES, GRADE_NAMES, CROPS, BLACK_MARKET_ITEMS, WEATHER_TYPES } from './state.js';
+import { stateManager, EGG_PRICES, SHOP_EGG_SLOT_PROBS, SEED_BOX_GACHA_PROBS, GRADES, GRADE_NAMES, CROPS, BLACK_MARKET_ITEMS, WEATHER_TYPES, SEALED_EGG_GACHA, BIRD_TEMPLATES } from './state.js';
 import { getEggSVG, getSeedPacketSVG, getReaperBirdSVG, soundEngine } from './assets.js';
 
 const REAPER_LINE = '쉿, 조용히 해. 걸리면 우리 모두에게 좋을 게 없어.';
@@ -201,6 +201,42 @@ export class ShopSystem {
       state.currentWeather = nextWeather.id;
       state.weatherTimer = 1200;
       alert(`🌦️ 날씨 조작기 사용! 날씨가 [${nextWeather.icon} ${nextWeather.name}](으)로 바뀌었습니다!`);
+    } else if (itemId === 'shop_reroll_charm') {
+      this.generateShopItems();
+      this.render();
+      alert('🎲 상점 새로고침권 사용! 상점 진열이 새로고침되었습니다.');
+    } else if (itemId === 'feather_pouch') {
+      stateManager.addFeathers(300);
+      alert('🪶 깃털 주머니 사용! 깃털 300개를 획득했습니다.');
+    } else if (itemId === 'sealed_egg') {
+      // 확률표에 따라 암시장 전용 새 1마리를 즉시 뽑는다
+      const rand = Math.random();
+      let cumulative = 0;
+      let pickedId = 'market_bird';
+      for (const birdId in SEALED_EGG_GACHA) {
+        cumulative += SEALED_EGG_GACHA[birdId];
+        if (rand <= cumulative) {
+          pickedId = birdId;
+          break;
+        }
+      }
+      stateManager.addBird(pickedId);
+      const template = BIRD_TEMPLATES[pickedId];
+      alert(`🥚 봉인된 알을 깨자... [${template.name}]이(가) 나왔습니다!`);
+    } else if (itemId === 'free_regurgitate_ticket') {
+      state.freeRegurgitateTickets = (state.freeRegurgitateTickets || 0) + 1;
+      alert(`🎫 무료 토해내기권 획득! (보유: ${state.freeRegurgitateTickets}장)`);
+    } else if (itemId === 'ruin_fragment') {
+      if (!state.inventory.materials) state.inventory.materials = {};
+      state.inventory.materials.ruin_fragment = (state.inventory.materials.ruin_fragment || 0) + 1;
+      alert('🗿 유적 조각을 획득했습니다. (용도는 추후 업데이트 예정)');
+    } else if (itemId === 'death_feed_item') {
+      if (!state.inventory.feeds) state.inventory.feeds = {};
+      state.inventory.feeds.death_feed = (state.inventory.feeds.death_feed || 0) + 1;
+      alert('💀 죽음의 모이를 획득했습니다! (부화소 아이템 칸에서 사용할 수 있습니다)');
+    } else if (itemId === 'reaper_egg') {
+      stateManager.addBird('reaper_bird');
+      alert('🥚 사신 새의 알이 부화했습니다... 영광스러운 등급, [사신 새]를 획득했습니다!');
     }
 
     soundEngine.playCoin();

@@ -126,7 +126,20 @@ export const BIRD_VISUALS = {
   pigeon: { body: '#a0aec0', wing: '#718096', belly: '#edf2f7', beak: '#ed64a6' },
   firebug: { body: '#c53030', wing: '#9b2c2c', belly: '#feebc8', beak: '#e53e3e' },
   charged_bird: { body: '#3182ce', wing: '#2b6cb0', belly: '#ebf8ff', beak: '#ecc94b' },
-  hen: { body: '#ffffff', wing: '#e2e8f0', belly: '#feebc8', beak: '#dd6b20' }
+  hen: { body: '#ffffff', wing: '#e2e8f0', belly: '#feebc8', beak: '#dd6b20' },
+
+  // --- 암시장 전용 새 (봉인된 알) ---
+  market_bird: { body: '#a0aec0', wing: '#718096', belly: '#e2e8f0', beak: '#dd6b20' },
+  dark_bird: { body: '#1a202c', wing: '#322659', belly: '#4a5568', beak: '#68d391' },
+  broken_bird: { body: '#718096', wing: '#4a5568', belly: '#e2e8f0', beak: '#e53e3e' },
+  sealed_bird: { body: '#742a2a', wing: '#1a202c', belly: '#9b2c2c', beak: '#ecc94b' },
+  reaper_bird: { body: '#1a202c', wing: '#000000', belly: '#742a2a', beak: '#ffd700' },
+
+  // --- 유적 알 전용 새 ---
+  soul_bird: { body: '#63b3ed', wing: '#3182ce', belly: '#ebf8ff', beak: '#e2e8f0' },
+  rusty_bird: { body: '#c05621', wing: '#7b341e', belly: '#dd6b20', beak: '#4a5568' },
+  time_bird: { body: '#b7791f', wing: '#744210', belly: '#fefcbf', beak: '#805ad5' },
+  eternal_bird: { body: '#fffff0', wing: '#ffd700', belly: '#fefcbf', beak: '#f6e05e' }
 };
 
 // SVG 내부 참조용 고유 ID 생성기

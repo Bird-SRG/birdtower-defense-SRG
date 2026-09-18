@@ -6,7 +6,8 @@ export const GRADES = {
   RARE: 'rare',           // 레어 (파란색)
   EPIC: 'epic',           // 에픽 (보라색)
   LEGENDARY: 'legendary', // 전설 (노란색)
-  MYTHIC: 'mythic'        // 신화 (빨간색)
+  MYTHIC: 'mythic',       // 신화 (빨간색)
+  GLORIOUS: 'glorious'    // 영광스러운 (황금색) — 사신 새의 알 등 암시장 최상급 전용
 };
 
 export const GRADE_COLORS = {
@@ -15,7 +16,8 @@ export const GRADE_COLORS = {
   [GRADES.RARE]: '#3182ce',
   [GRADES.EPIC]: '#805ad5',
   [GRADES.LEGENDARY]: '#d69e2e',
-  [GRADES.MYTHIC]: '#e53e3e'
+  [GRADES.MYTHIC]: '#e53e3e',
+  [GRADES.GLORIOUS]: '#ffd700'
 };
 
 export const GRADE_NAMES = {
@@ -24,7 +26,8 @@ export const GRADE_NAMES = {
   [GRADES.RARE]: '레어',
   [GRADES.EPIC]: '에픽',
   [GRADES.LEGENDARY]: '전설',
-  [GRADES.MYTHIC]: '신화'
+  [GRADES.MYTHIC]: '신화',
+  [GRADES.GLORIOUS]: '영광스러운'
 };
 
 export const MAX_DECK_SIZE = 5;
@@ -36,7 +39,8 @@ export const GRADE_DPS_MULT = {
   [GRADES.RARE]: 1.70,
   [GRADES.EPIC]: 2.00,
   [GRADES.LEGENDARY]: 2.40,
-  [GRADES.MYTHIC]: 2.90
+  [GRADES.MYTHIC]: 2.90,
+  [GRADES.GLORIOUS]: 3.50
 };
 
 export const ENHANCE_MAX = 5;
@@ -73,7 +77,8 @@ export const PLACEMENT_COSTS = {
   [GRADES.RARE]: 60,
   [GRADES.EPIC]: 120,
   [GRADES.LEGENDARY]: 250,
-  [GRADES.MYTHIC]: 500
+  [GRADES.MYTHIC]: 500,
+  [GRADES.GLORIOUS]: 800
 };
 
 // 등급별 알 가격 (깃털)
@@ -534,7 +539,124 @@ export const BIRD_TEMPLATES = {
       { level: 4, atk: 0, interval: 3.0, range: 0, cost: 2200, effectDesc: '3초마다 알 5개(80코인), 황금알 13%', eggInterval: 3.0, eggCount: 5, coinPerEgg: 80, goldenChance: 0.13 },
       { level: 5, atk: 0, interval: 2.0, range: 0, cost: 3500, effectDesc: '2초마다 알 6개(112코인), 황금알 18% (10번째 알 확정 깃털 2개)', eggInterval: 2.0, eggCount: 6, coinPerEgg: 112, goldenChance: 0.18, pityGolden: true }
     ]
+  },
+
+  // --- 암시장 전용 새 (봉인된 알 / 사신 새의 알로만 획득 가능, 일반 알/씨앗 상자 획득 불가) ---
+  market_bird: {
+    id: 'market_bird', name: '새', grade: GRADES.RARE, type: '균형형',
+    desc: '봉인된 알에서 가장 흔하게 나오는, 겉보기엔 평범한 새.',
+    levels: [
+      { level: 1, atk: 5, interval: 0.85, range: 130, cost: 0, effectDesc: '-' },
+      { level: 2, atk: 7, interval: 0.75, range: 138, cost: 160, effectDesc: '-' },
+      { level: 3, atk: 10, interval: 0.65, range: 146, cost: 340, effectDesc: '-' },
+      { level: 4, atk: 14, interval: 0.55, range: 154, cost: 640, effectDesc: '-' }
+    ]
+  },
+  dark_bird: {
+    id: 'dark_bird', name: '어둠의 새', grade: GRADES.EPIC, type: '저주 전파형',
+    desc: '스치기만 해도 저주가 전염되어 지속 피해를 남기는 불길한 새.',
+    levels: [
+      { level: 1, atk: 8, interval: 0.94, range: 124, cost: 0, effectDesc: '저주 전파 20%, 도트 1.0/초 (4초)', infectChance: 0.20, dotDmg: 1.0, dotDur: 4 },
+      { level: 2, atk: 11, interval: 0.81, range: 132, cost: 320, effectDesc: '저주 전파 25%, 도트 1.4/초 (4초)', infectChance: 0.25, dotDmg: 1.4, dotDur: 4 },
+      { level: 3, atk: 15, interval: 0.72, range: 140, cost: 680, effectDesc: '저주 전파 30%, 도트 1.9/초 (5초)', infectChance: 0.30, dotDmg: 1.9, dotDur: 5 },
+      { level: 4, atk: 20, interval: 0.64, range: 148, cost: 1240, effectDesc: '저주 전파 35%, 도트 2.5/초 (5초)', infectChance: 0.35, dotDmg: 2.5, dotDur: 5 }
+    ]
+  },
+  broken_bird: {
+    id: 'broken_bird', name: '부서진 새', grade: GRADES.LEGENDARY, type: '방어 파괴형',
+    desc: '금이 간 몸으로 부딪힐 때마다 적의 방어력을 함께 부숴버립니다.',
+    levels: [
+      { level: 1, atk: 10, interval: 1.10, range: 136, cost: 0, effectDesc: '방어력 -8% (최대 5스택)', armorShred: 0.08, maxShredStack: 5 },
+      { level: 2, atk: 14, interval: 0.98, range: 144, cost: 440, effectDesc: '방어력 -10% (최대 6스택)', armorShred: 0.10, maxShredStack: 6 },
+      { level: 3, atk: 19, interval: 0.85, range: 152, cost: 920, effectDesc: '방어력 -12% (최대 7스택)', armorShred: 0.12, maxShredStack: 7 },
+      { level: 4, atk: 25, interval: 0.77, range: 160, cost: 1600, effectDesc: '방어력 -15% (최대 8스택)', armorShred: 0.15, maxShredStack: 8 }
+    ]
+  },
+  sealed_bird: {
+    id: 'sealed_bird', name: '봉인된 새', grade: GRADES.MYTHIC, type: '봉인 해방형',
+    desc: '봉인이 풀릴수록 강력해지는, 암시장에서 가장 얻기 힘든 새.',
+    levels: [
+      { level: 1, atk: 20, interval: 1.53, range: 140, cost: 0, effectDesc: '-' },
+      { level: 2, atk: 27, interval: 1.36, range: 148, cost: 640, effectDesc: '-' },
+      { level: 3, atk: 36, interval: 1.19, range: 156, cost: 1320, effectDesc: '-' },
+      { level: 4, atk: 48, interval: 1.02, range: 164, cost: 2200, effectDesc: '-' },
+      { level: 5, atk: 62, interval: 0.85, range: 172, cost: 3500, effectDesc: '-' }
+    ]
+  },
+  // 사신 새: 영광스러운(GLORIOUS) 등급, 사신 새의 알(10000 보석)로만 획득. 전투 매커니즘은 추후 설계 예정.
+  reaper_bird: {
+    id: 'reaper_bird', name: '사신 새', grade: GRADES.GLORIOUS, type: '미정 (추후 설계)',
+    desc: '암시장의 주인, 사신 새. 아직 그 힘이 무엇인지는 아무도 모른다.',
+    levels: [
+      { level: 1, atk: 0, interval: 1.0, range: 100, cost: 0, effectDesc: '매커니즘 미정 (추후 업데이트 예정)' }
+    ]
+  },
+
+  // --- 유적 알 전용 새 (유적 조각 10개로 제작한 유적 알로만 획득) ---
+  soul_bird: {
+    id: 'soul_bird', name: '영혼 새', grade: GRADES.EPIC, type: '균형형',
+    desc: '유적 알에서 가장 흔하게 나오는, 희미하게 빛나는 영혼을 두른 새.',
+    levels: [
+      { level: 1, atk: 9, interval: 0.90, range: 128, cost: 0, effectDesc: '-' },
+      { level: 2, atk: 12, interval: 0.78, range: 136, cost: 320, effectDesc: '-' },
+      { level: 3, atk: 16, interval: 0.68, range: 144, cost: 680, effectDesc: '-' },
+      { level: 4, atk: 22, interval: 0.60, range: 152, cost: 1240, effectDesc: '-' }
+    ]
+  },
+  rusty_bird: {
+    id: 'rusty_bird', name: '녹슨 새', grade: GRADES.LEGENDARY, type: '균형형',
+    desc: '오랜 세월 유적에 묻혀 녹슬었지만, 여전히 묵직한 위력을 지녔습니다.',
+    levels: [
+      { level: 1, atk: 13, interval: 1.15, range: 140, cost: 0, effectDesc: '-' },
+      { level: 2, atk: 18, interval: 1.02, range: 148, cost: 440, effectDesc: '-' },
+      { level: 3, atk: 24, interval: 0.89, range: 156, cost: 920, effectDesc: '-' },
+      { level: 4, atk: 32, interval: 0.77, range: 164, cost: 1600, effectDesc: '-' }
+    ]
+  },
+  time_bird: {
+    id: 'time_bird', name: '시간 새', grade: GRADES.MYTHIC, type: '광역 감속형',
+    desc: '시간을 왜곡시켜 주변 적들의 움직임을 크게 늦춥니다.',
+    levels: [
+      { level: 1, atk: 15, interval: 1.36, range: 132, cost: 0, effectDesc: '속도 -25% (2.0초)', slowRate: 0.25, slowDur: 2.0, aoeRadius: 50 },
+      { level: 2, atk: 20, interval: 1.19, range: 140, cost: 640, effectDesc: '속도 -30% (2.2초)', slowRate: 0.30, slowDur: 2.2, aoeRadius: 55 },
+      { level: 3, atk: 27, interval: 1.02, range: 148, cost: 1320, effectDesc: '속도 -35% (2.4초)', slowRate: 0.35, slowDur: 2.4, aoeRadius: 60 },
+      { level: 4, atk: 36, interval: 0.89, range: 156, cost: 2200, effectDesc: '속도 -40% (2.6초)', slowRate: 0.40, slowDur: 2.6, aoeRadius: 65 },
+      { level: 5, atk: 47, interval: 0.77, range: 164, cost: 3500, effectDesc: '속도 -45% (3.0초)', slowRate: 0.45, slowDur: 3.0, aoeRadius: 70 }
+    ]
+  },
+  // 임시 이름 — 사용자가 원하는 이름으로 바로 바꿔도 됩니다 (id: eternal_bird)
+  eternal_bird: {
+    id: 'eternal_bird', name: '영원한 새', grade: GRADES.GLORIOUS, type: '균형형 (궁극)',
+    desc: '유적 알에서 나올 확률이 가장 낮은, 시간의 흐름을 초월한 새.',
+    levels: [
+      { level: 1, atk: 25, interval: 1.02, range: 150, cost: 0, effectDesc: '-' },
+      { level: 2, atk: 33, interval: 0.89, range: 158, cost: 800, effectDesc: '-' },
+      { level: 3, atk: 44, interval: 0.77, range: 166, cost: 1600, effectDesc: '-' },
+      { level: 4, atk: 58, interval: 0.68, range: 174, cost: 2800, effectDesc: '-' },
+      { level: 5, atk: 75, interval: 0.59, range: 182, cost: 4200, effectDesc: '-' }
+    ]
   }
+};
+
+// 봉인된 알 뽑기 확률표 (합계 100%)
+export const SEALED_EGG_GACHA = {
+  market_bird: 0.660,
+  dark_bird: 0.200,
+  broken_bird: 0.135,
+  sealed_bird: 0.005
+};
+
+// 유적 알 뽑기 확률표 (합계 100%) — 유적 조각 10개로 강화소에서 제작
+export const RUIN_EGG_GACHA = {
+  soul_bird: 0.800,
+  rusty_bird: 0.160,
+  time_bird: 0.039,
+  eternal_bird: 0.001
+};
+
+// 유적 알 제작 레시피 (유적 조각만 소모, 깃털 비용 없음)
+export const RUIN_EGG_RECIPE = {
+  materialId: 'ruin_fragment', materialCost: 10
 };
 
 const DPS_DAMAGE_KEYS = [
@@ -672,17 +794,25 @@ export const BLACK_MARKET_ITEMS = {
     id: 'feather_pouch', name: '깃털 주머니', icon: '🪶', price: 40,
     desc: '깃털 300개를 즉시 획득합니다.'
   },
-  sealed_egg_bundle: {
-    id: 'sealed_egg_bundle', name: '봉인된 알 상자', icon: '🥚', price: 70,
-    desc: '모든 등급의 알을 1개씩 획득합니다.'
-  },
-  sealed_seedbox_bundle: {
-    id: 'sealed_seedbox_bundle', name: '봉인된 씨앗 상자', icon: '🎁', price: 90,
-    desc: '모든 등급의 씨앗 상자를 1개씩 획득합니다.'
+  sealed_egg: {
+    id: 'sealed_egg', name: '봉인된 알', icon: '🥚', price: 70,
+    desc: '암시장 전용 새 1마리를 즉시 획득합니다. (새 66% / 어둠의 새 20% / 부서진 새 13.5% / 봉인된 새 0.5%)'
   },
   free_regurgitate_ticket: {
     id: 'free_regurgitate_ticket', name: '무료 토해내기권', icon: '🎫', price: 60,
     desc: '다음 모이 토해내기 1회의 깃털 비용을 면제해 줍니다.'
+  },
+  ruin_fragment: {
+    id: 'ruin_fragment', name: '유적 조각', icon: '🗿', price: 100,
+    desc: '정체를 알 수 없는 고대의 조각. (용도는 추후 업데이트 예정)'
+  },
+  death_feed_item: {
+    id: 'death_feed_item', name: '죽음의 모이', icon: '💀', price: 1000,
+    desc: '모든 스탯을 30% 강화하는 금단의 모이 1개를 즉시 획득합니다.'
+  },
+  reaper_egg: {
+    id: 'reaper_egg', name: '사신 새의 알', icon: '🥚', price: 10000,
+    desc: '영광스러운 등급, 사신 새를 즉시 획득합니다. (전투 매커니즘은 추후 업데이트 예정)'
   }
 };
 
@@ -739,10 +869,14 @@ export const FEED_RANGE_KEYS = [
 ];
 
 // damage/range는 곱연산 배율, cooldown은 쿨타임에 그대로 곱하는 값(1 미만 = 감소)
+// id/name/icon/grade까지 포함해 이 오브젝트만으로 feedBirdEntry가 완전히 처리 가능하게 함
+// (FEED_RECIPES에는 "제작 가능한" 모이만 등록하고, 암시장 전용처럼 제작 불가능한 모이는 여기에만 둔다)
 export const FEED_EFFECTS = {
-  wood_feed:  { damage: 1.05, desc: '공격력 +5%' },
-  hard_feed:  { damage: 1.10, desc: '공격력 +10%' },
-  cubic_feed: { damage: 1.15, cooldown: 0.90, desc: '공격력 +15%, 공격속도 -10%' }
+  wood_feed:  { id: 'wood_feed', name: '나무 모이', icon: '🪵', grade: GRADES.NORMAL, damage: 1.05, desc: '공격력 +5%' },
+  hard_feed:  { id: 'hard_feed', name: '단단한 모이', icon: '🪨', grade: GRADES.UNCOMMON, damage: 1.10, desc: '공격력 +10%' },
+  cubic_feed: { id: 'cubic_feed', name: '큐빅 모이', icon: '🧊', grade: GRADES.EPIC, damage: 1.15, cooldown: 0.90, desc: '공격력 +15%, 공격속도 -10%' },
+  // 암시장 전용 (재료로는 제작 불가, 이상한 보석으로만 구매)
+  death_feed: { id: 'death_feed', name: '죽음의 모이', icon: '💀', grade: GRADES.LEGENDARY, damage: 1.30, cooldown: 0.70, range: 1.30, desc: '공격력 +30%, 공격속도 -30%, 사거리 +30%' }
 };
 
 // 모이를 토해내게 하는 비용 (등급별, 깃털)
@@ -910,7 +1044,8 @@ const DEFAULT_STATE = {
     seeds: { carrot: 3, tomato: 2 }, // 확정 씨앗 개수 ({ [cropId]: count })
     crops: {}, // 수확한 작물 저장 ({ [cropId]: [{ id, cropId, seedMutation, naturalMutation, weatherMutation, totalMult, isUnstable, unstableMult }] })
     materials: { wood_scrap: 0, stone: 0, cube_fragment: 0 }, // 스테이지 클리어 드롭 재료
-    feeds: { wood_feed: 0, hard_feed: 0, cubic_feed: 0 }      // 재료+깃털로 제작한 모이 (효과는 추후 추가 예정)
+    feeds: { wood_feed: 0, hard_feed: 0, cubic_feed: 0 },     // 재료+깃털로 제작한 모이 (효과는 추후 추가 예정)
+    ruinEggs: 0 // 유적 조각 10개로 제작하는 유적 알 (열면 암시장 전용 새 확률 뽑기)
   },
 
   farmPlots: [
@@ -1128,8 +1263,10 @@ export class StateManager {
 
   // 새에게 모이를 먹임. 같은 새를 여러 마리 보유 중이면 먹은 개체를 독립 분리한다.
   feedBirdEntry(entryId, feedId) {
-    const recipe = FEED_RECIPES[feedId];
-    if (!recipe) return { ok: false, reason: 'invalid' };
+    // 제작 가능한 모이(FEED_RECIPES)든 암시장 전용 모이(FEED_EFFECTS에만 등록)든
+    // FEED_EFFECTS에 등록만 되어 있으면 먹일 수 있다 (제작 가능 여부는 FEED_RECIPES가 별도로 관리)
+    const effect = FEED_EFFECTS[feedId];
+    if (!effect) return { ok: false, reason: 'invalid' };
     if (!this.state.inventory.feeds) return { ok: false, reason: 'noFeed' };
     if ((this.state.inventory.feeds[feedId] || 0) <= 0) return { ok: false, reason: 'noFeed' };
 
@@ -1139,9 +1276,8 @@ export class StateManager {
 
     this.state.inventory.feeds[feedId]--;
 
-    const effect = FEED_EFFECTS[feedId] || {};
     const feedData = {
-      id: recipe.id, name: recipe.name, icon: recipe.icon, grade: recipe.grade,
+      id: effect.id, name: effect.name, icon: effect.icon, grade: effect.grade,
       damage: effect.damage || 1, cooldown: effect.cooldown || 1, range: effect.range || 1,
       desc: effect.desc || ''
     };
@@ -1216,6 +1352,38 @@ export class StateManager {
     this.state.inventory.feeds[feedId] = (this.state.inventory.feeds[feedId] || 0) + 1;
     this.notify();
     return { ok: true };
+  }
+
+  // 유적 조각 10개를 소모해 유적 알 1개를 제작
+  craftRuinEgg() {
+    if (!this.state.inventory.materials) this.state.inventory.materials = {};
+    const have = this.state.inventory.materials[RUIN_EGG_RECIPE.materialId] || 0;
+    if (have < RUIN_EGG_RECIPE.materialCost) return { ok: false, reason: 'material' };
+
+    this.state.inventory.materials[RUIN_EGG_RECIPE.materialId] -= RUIN_EGG_RECIPE.materialCost;
+    this.state.inventory.ruinEggs = (this.state.inventory.ruinEggs || 0) + 1;
+    this.notify();
+    return { ok: true };
+  }
+
+  // 유적 알 1개를 열어 확률표에 따라 새 1마리를 획득
+  openRuinEgg() {
+    if ((this.state.inventory.ruinEggs || 0) <= 0) return { ok: false, reason: 'noEgg' };
+    this.state.inventory.ruinEggs--;
+
+    const rand = Math.random();
+    let cumulative = 0;
+    let pickedId = 'soul_bird';
+    for (const birdId in RUIN_EGG_GACHA) {
+      cumulative += RUIN_EGG_GACHA[birdId];
+      if (rand <= cumulative) {
+        pickedId = birdId;
+        break;
+      }
+    }
+    this.addBird(pickedId);
+    this.notify();
+    return { ok: true, birdId: pickedId };
   }
 
   addBird(birdId) {
