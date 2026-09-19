@@ -466,10 +466,6 @@ body.battle-locked .nav-tab:not(.active):not([data-target="tab-admin"]):hover {
 }
 
 .stage-intro-image {
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--border-glow);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   margin-bottom: 1.2rem;
 }
 
@@ -1694,15 +1690,6 @@ body.battle-locked .nav-tab:not(.active):not([data-target="tab-admin"]):hover {
   margin-bottom: 1.2rem;
 }
 
-.black-market-teaser {
-  padding: 0.7rem 1rem;
-  border: 1px dashed var(--border-light);
-  border-radius: 10px;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  text-align: center;
-}
-
 .black-market-live {
   border: 1px solid rgba(229, 62, 62, 0.5);
   border-radius: 14px;
@@ -2333,3 +2320,30 @@ body.battle-locked .nav-tab:not(.active):not([data-target="tab-admin"]):hover {
 }
 
 
+
+/* 업적 */
+.achievements-container { padding: 1rem; }
+.achievement-list { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.8rem; }
+.achievement-card { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; opacity: 0.6; }
+.achievement-card.achievement-done { opacity: 1; border-color: rgba(255, 215, 0, 0.6); box-shadow: 0 0 14px rgba(255, 215, 0, 0.2); }
+.achievement-icon { font-size: 2rem; width: 2.6rem; text-align: center; }
+.achievement-text { flex: 1; }
+.achievement-text h4 { margin: 0 0 0.2rem; }
+.achievement-text p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+.achievement-status { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+.achievement-done .achievement-status { color: #ffd700; }
+
+/* 달걀섬 스테이지 지도 */
+.egg-island { position: relative; width: 100%; max-width: 360px; margin: 0 auto; }
+.egg-island img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 14px rgba(255, 240, 150, 0.25)); }
+.egg-node {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid #fff; background: rgba(108, 92, 231, 0.9);
+  color: #fff; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.egg-node:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.15); }
+.egg-node-active { background: #f6ad55; box-shadow: 0 0 14px rgba(246, 173, 85, 0.9); }
+.egg-node-locked { background: rgba(60, 60, 75, 0.9); border-color: rgba(255, 255, 255, 0.4); font-size: 0.8rem; }
+.egg-node:disabled { cursor: default; opacity: 0.6; }

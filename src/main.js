@@ -1,6 +1,6 @@
 /* Bird Tower Defense - Main Controller & Bootstrap */
 
-import { stateManager, BIRD_TEMPLATES, PLACEMENT_COSTS, STAGES } from './state.js';
+import { stateManager, BIRD_TEMPLATES, PLACEMENT_COSTS, STAGES, ACHIEVEMENTS } from './state.js';
 import { getBirdSVG } from './assets.js';
 import { GameEngine } from './game/engine.js';
 import { FarmSystem } from './farm.js';
@@ -11,78 +11,6 @@ import { EnhanceSystem } from './enhance.js';
 import { ShopSystem } from './shop.js';
 import { AdminSystem } from './admin.js';
 
-// --- 스테이지 소개 화면용 일러스트 (스테이지별) ---
-const STAGE_INTRO_ART = {
-  1: `
-    <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="stage-sky-1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#3a2f78"/>
-          <stop offset="55%" stop-color="#6c5ce7"/>
-          <stop offset="100%" stop-color="#a78bfa"/>
-        </linearGradient>
-        <radialGradient id="stage-sun-1" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fff6cf"/>
-          <stop offset="100%" stop-color="#ffd76a" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <rect width="320" height="180" fill="url(#stage-sky-1)"/>
-      <circle cx="250" cy="45" r="55" fill="url(#stage-sun-1)"/>
-      <circle cx="250" cy="45" r="20" fill="#fff4d6"/>
-      <g opacity="0.5" fill="#ffffff">
-        <ellipse cx="55" cy="35" rx="26" ry="10"/>
-        <ellipse cx="80" cy="30" rx="20" ry="9"/>
-        <ellipse cx="140" cy="55" rx="22" ry="8"/>
-      </g>
-      <path d="M0,150 L20,150 L20,120 L90,120 L90,150 L130,150 L130,90 L200,90 L200,150 L240,150 L240,110 L320,110 L320,180 L0,180 Z" fill="#241b4d" opacity="0.85"/>
-      <path d="M10,140 L60,140 L60,170 L150,170 L150,130 L210,130 L210,170 L310,170" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-      <path d="M10,140 L60,140 L60,170 L150,170 L150,130 L210,130 L210,170 L310,170" fill="none" stroke="#6c5ce7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <g transform="translate(120,58) rotate(-8)">
-        <circle cx="0" cy="0" r="16" fill="#d2b48c"/>
-        <circle cx="0" cy="4" r="11" fill="#f5f5dc"/>
-        <path d="M-15,0 C-22,-5 -22,7 -15,8 Z" fill="#8b5a2b"/>
-        <path d="M15,0 C22,-5 22,7 15,8 Z" fill="#8b5a2b"/>
-        <polygon points="-4,-4 4,-4 0,4" fill="#ffa500"/>
-        <circle cx="-5" cy="-6" r="2" fill="#1a202c"/>
-      </g>
-    </svg>
-  `,
-  2: `
-    <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="stage-sky-2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#0f3d2e"/>
-          <stop offset="55%" stop-color="#1c6e4f"/>
-          <stop offset="100%" stop-color="#8fd694"/>
-        </linearGradient>
-        <radialGradient id="stage-sun-2" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fffbd6"/>
-          <stop offset="100%" stop-color="#ffe98a" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <rect width="320" height="180" fill="url(#stage-sky-2)"/>
-      <circle cx="70" cy="40" r="50" fill="url(#stage-sun-2)"/>
-      <circle cx="70" cy="40" r="18" fill="#fff6cf"/>
-      <!-- 정글 캐노피 실루엣 -->
-      <path d="M0,60 C30,30 60,70 90,45 C120,20 150,60 180,40 C210,20 250,55 280,35 C300,25 310,35 320,30 L320,0 L0,0 Z" fill="#08251a" opacity="0.9"/>
-      <path d="M0,180 L0,120 C40,140 60,105 100,120 C140,135 170,100 210,118 C250,136 280,108 320,125 L320,180 Z" fill="#0c3323" opacity="0.9"/>
-      <!-- 구불구불한 정글 오솔길 -->
-      <path d="M10,150 L60,150 L60,95 L130,95 L130,150 L190,150 L190,95 L260,95 L260,150 L310,150"
-            fill="none" stroke="#e9d8a6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-      <path d="M10,150 L60,150 L60,95 L130,95 L130,150 L190,150 L190,95 L260,95 L260,150 L310,150"
-            fill="none" stroke="#1c6e4f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <!-- 새 -->
-      <g transform="translate(150,70) rotate(-6)">
-        <circle cx="0" cy="0" r="15" fill="#38a169"/>
-        <circle cx="0" cy="4" r="10" fill="#c6f6d5"/>
-        <path d="M-14,0 C-20,-5 -20,7 -14,7 Z" fill="#276749"/>
-        <path d="M14,0 C20,-5 20,7 14,7 Z" fill="#276749"/>
-        <polygon points="-4,-3 4,-3 0,4" fill="#ecc94b"/>
-        <circle cx="-5" cy="-5" r="2" fill="#1a202c"/>
-      </g>
-    </svg>
-  `
-};
 
 let gameEngine;
 let farmSystem;
@@ -142,6 +70,7 @@ function initNavigation() {
       else if (targetId === 'tab-deck' && deckSystem) deckSystem.render();
       else if (targetId === 'tab-enhance' && enhanceSystem) enhanceSystem.render();
       else if (targetId === 'tab-shop' && shopSystem) shopSystem.render();
+      else if (targetId === 'tab-achievements') renderAchievements();
 
       if (hatcherySystem) {
         if (targetId === 'tab-hatchery') {
@@ -166,6 +95,57 @@ function initNavigation() {
 // --- 스테이지 소개 화면: 좌우 화살표로 둘러보고, 해금된 스테이지만 플레이 가능 ---
 const STAGE_IDS = Object.keys(STAGES).map(Number).sort((a, b) => a - b);
 
+// --- 달걀섬 지도: 첫 4개 스테이지가 있는 섬. 흰 배경을 투명하게 만든 이미지를 한 번만 만들어 재사용 ---
+const EGG_ISLAND_NODES = [
+  { stage: 1, x: 27.5, y: 35 },
+  { stage: 2, x: 58, y: 39 },
+  { stage: 3, x: 58, y: 68 },
+  { stage: 4, x: 27, y: 66 }
+];
+let eggIslandUrl = null;
+let eggIslandLoading = false;
+
+function loadEggIslandImage() {
+  if (eggIslandUrl || eggIslandLoading) return;
+  eggIslandLoading = true;
+  const img = new Image();
+  img.onload = () => {
+    const W = img.width, H = img.height;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const id = g.getImageData(0, 0, W, H), d = id.data;
+    // 가장자리에서 시작해 바깥쪽 흰 배경만 투명으로 (달걀 흰자는 유지)
+    const white = (i) => d[i] > 235 && d[i + 1] > 235 && d[i + 2] > 235;
+    const seen = new Uint8Array(W * H);
+    const stack = [];
+    for (let x = 0; x < W; x++) stack.push(x, 0, x, H - 1);
+    for (let y = 0; y < H; y++) stack.push(0, y, W - 1, y);
+    while (stack.length) {
+      const y = stack.pop(), x = stack.pop();
+      if (x < 0 || y < 0 || x >= W || y >= H) continue;
+      const p = y * W + x;
+      if (seen[p]) continue;
+      seen[p] = 1;
+      if (!white(p * 4)) continue;
+      d[p * 4 + 3] = 0;
+      stack.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+    }
+    g.putImageData(id, 0, 0);
+    eggIslandUrl = c.toDataURL('image/png');
+    renderStageIntro();
+  };
+  img.src = 'assets/maps/egg_island.png';
+}
+
+function selectStageNode(stageId) {
+  if (!STAGES[stageId]) return;
+  stateManager.state.selectedStage = stageId;
+  stateManager.save();
+  renderStageIntro();
+}
+
 function renderStageIntro() {
   const state = stateManager.state;
   const viewing = STAGE_IDS.includes(state.selectedStage) ? state.selectedStage : STAGE_IDS[0];
@@ -173,9 +153,24 @@ function renderStageIntro() {
   const unlocked = viewing <= (state.unlockedStage || 1);
 
   const imgEl = document.getElementById('stage-intro-image');
-  if (imgEl) imgEl.innerHTML = STAGE_INTRO_ART[viewing] || '';
+  if (imgEl) {
+    loadEggIslandImage();
+    imgEl.innerHTML = `
+      <div class="egg-island">
+        ${eggIslandUrl ? `<img src="${eggIslandUrl}" alt="달걀섬">` : ''}
+        ${EGG_ISLAND_NODES.map(n => {
+          const exists = !!STAGES[n.stage];
+          const open = exists && n.stage <= (state.unlockedStage || 1);
+          const cls = ['egg-node', n.stage === viewing ? 'egg-node-active' : '', open ? '' : 'egg-node-locked'].join(' ');
+          return `<button type="button" class="${cls}" style="left:${n.x}%;top:${n.y}%" data-stage="${n.stage}" ${exists ? '' : 'disabled'}>${exists && open ? n.stage : '🔒'}</button>`;
+        }).join('')}
+      </div>`;
+    imgEl.querySelectorAll('.egg-node').forEach(btn => {
+      btn.addEventListener('click', () => selectStageNode(Number(btn.dataset.stage)));
+    });
+  }
   const labelEl = document.getElementById('stage-intro-label');
-  if (labelEl) labelEl.textContent = stage.badge;
+  if (labelEl) labelEl.textContent = `${stage.island ? stage.island + ' · ' : ''}${stage.badge}`;
   const titleEl = document.getElementById('stage-intro-title');
   if (titleEl) titleEl.textContent = stage.name;
   const descEl = document.getElementById('stage-intro-desc');
@@ -402,8 +397,31 @@ function initDefenseControls() {
   }
 }
 
+function renderAchievements() {
+  const list = document.getElementById('achievement-list');
+  if (!list) return;
+  const done = stateManager.state.achievements || {};
+  list.innerHTML = ACHIEVEMENTS.map(a => {
+    const unlocked = !!done[a.id];
+    return `
+      <div class="achievement-card glass-panel ${unlocked ? 'achievement-done' : ''}">
+        <div class="achievement-icon">${unlocked ? a.icon : '🔒'}</div>
+        <div class="achievement-text">
+          <h4>${a.name}</h4>
+          <p>${a.desc}</p>
+        </div>
+        <div class="achievement-status">${unlocked ? '달성' : '미달성'}</div>
+      </div>`;
+  }).join('');
+}
+
 function subscribeStateChanges() {
   stateManager.subscribe((state) => {
+    stateManager.consumeNewAchievements().forEach(id => {
+      const a = ACHIEVEMENTS.find(x => x.id === id);
+      if (a) showToast(`🏆 업적 달성: ${a.name}`);
+    });
+    renderAchievements();
     const elFeathers = document.getElementById('player-feathers');
     if (elFeathers) elFeathers.textContent = state.feathers.toLocaleString();
 

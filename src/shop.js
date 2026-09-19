@@ -1,13 +1,13 @@
 /* Bird Tower Defense - 6-Slot Dynamic Shop System (Full GDD Specification) */
 
-import { stateManager, EGG_PRICES, SHOP_EGG_SLOT_PROBS, SEED_BOX_GACHA_PROBS, GRADES, GRADE_NAMES, CROPS, BLACK_MARKET_ITEMS, WEATHER_TYPES, SEALED_EGG_GACHA, BIRD_TEMPLATES } from './state.js';
+import { stateManager, EGG_PRICES, SHOP_EGG_SLOT_PROBS, SEED_BOX_GACHA_PROBS, GRADES, GRADE_NAMES, CROPS, BLACK_MARKET_ITEMS, BLACK_MARKET_CONFIG, WEATHER_TYPES, SEALED_EGG_GACHA, BIRD_TEMPLATES } from './state.js';
 import { getEggSVG, getSeedPacketSVG, getReaperBirdSVG, soundEngine } from './assets.js';
 
 const REAPER_LINE = '쉿, 조용히 해. 걸리면 우리 모두에게 좋을 게 없어.';
 
-const BLACK_MARKET_APPEAR_CHANCE = 0.25; // 확인 주기마다 등장할 확률
-const BLACK_MARKET_CHECK_INTERVAL = 60;  // 등장 여부를 굴리는 주기 (초)
-const BLACK_MARKET_DURATION = 180;       // 한 번 등장하면 유지되는 시간 (초)
+const BLACK_MARKET_APPEAR_CHANCE = BLACK_MARKET_CONFIG.appearChance;
+const BLACK_MARKET_CHECK_INTERVAL = BLACK_MARKET_CONFIG.checkInterval;
+const BLACK_MARKET_DURATION = BLACK_MARKET_CONFIG.duration;
 
 export class ShopSystem {
   constructor() {
@@ -84,19 +84,15 @@ export class ShopSystem {
     const bm = stateManager.state.blackMarket;
     this.blackMarketContainer.innerHTML = '';
 
+    // 암시장이 나타나 있지 않을 때는 아무것도 표시하지 않는다
     if (!bm.active) {
-      const mins = Math.floor(bm.nextCheckIn / 60);
-      const secs = bm.nextCheckIn % 60;
       this.blackMarketContainer.classList.remove('black-market-live');
-      this.blackMarketContainer.innerHTML = `
-        <div class="black-market-teaser">
-          🕵️ 암시장은 일정 확률로 나타납니다. 다음 등장 판정까지: <b>${mins}:${secs < 10 ? '0' : ''}${secs}</b>
-        </div>
-      `;
+      this.blackMarketContainer.classList.add('hidden');
       this.closeBlackMarketModal();
       return;
     }
 
+    this.blackMarketContainer.classList.remove('hidden');
     this.blackMarketContainer.classList.add('black-market-live');
     const mins = Math.floor(bm.timeLeft / 60);
     const secs = bm.timeLeft % 60;
@@ -109,7 +105,7 @@ export class ShopSystem {
       <span class="black-market-enter-icon">🕵️</span>
       <span class="black-market-enter-text">
         <b>암시장이 나타났습니다!</b>
-        <small>클릭해서 들어가기 · 남은 시간 ⏳ ${timeStr}</small>
+        <small>⏳ ${timeStr}</small>
       </span>
       <span class="black-market-enter-arrow">›</span>
     `;
@@ -229,7 +225,7 @@ export class ShopSystem {
     } else if (itemId === 'ruin_fragment') {
       if (!state.inventory.materials) state.inventory.materials = {};
       state.inventory.materials.ruin_fragment = (state.inventory.materials.ruin_fragment || 0) + 1;
-      alert('🗿 유적 조각을 획득했습니다. (용도는 추후 업데이트 예정)');
+      alert('🗿 유적 조각을 획득했습니다.');
     } else if (itemId === 'death_feed_item') {
       if (!state.inventory.feeds) state.inventory.feeds = {};
       state.inventory.feeds.death_feed = (state.inventory.feeds.death_feed || 0) + 1;

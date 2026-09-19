@@ -98,13 +98,9 @@
               <button id="btn-end-battle" class="btn btn-danger w-100">🏳️ 전투 끝내기</button>
             </div>
             <div class="placement-selector">
-              <div class="placement-header">
-                <h4>배치할 새 선택 (자유 위치 클릭)</h4>
-              </div>
               <div id="defense-deck" class="deck-slots">
                 <!-- 동적 덱 슬롯 -->
               </div>
-              <p class="helper-text">💡 새를 선택 후 맵 상의 자유로운 위치를 클릭하여 배치하세요 (경로 외 위치).</p>
             </div>
             <!-- 타워 레벨업/판매 선택 창 -->
             <div id="selected-tower-panel" class="selected-tower-panel hidden">
@@ -357,6 +353,14 @@
       </section>
 
       <!-- 8. 어드민 패널 탭 -->
+      <!-- 업적 탭 -->
+      <section id="tab-achievements" class="tab-pane">
+        <div class="achievements-container">
+          <h2>🏆 업적</h2>
+          <div id="achievement-list" class="achievement-list"></div>
+        </div>
+      </section>
+
       <section id="tab-admin" class="tab-pane">
         <div class="admin-container">
           <div class="admin-header">
@@ -469,6 +473,10 @@
         <button class="nav-tab" data-target="tab-shop">
           <span class="tab-icon">🛒</span>
           <span class="tab-text">상점</span>
+        </button>
+        <button class="nav-tab" data-target="tab-achievements">
+          <span class="tab-icon">🏆</span>
+          <span class="tab-text">업적</span>
         </button>
         <button class="nav-tab" data-target="tab-admin">
           <span class="tab-icon">🛠️</span>

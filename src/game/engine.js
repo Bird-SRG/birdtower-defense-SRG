@@ -746,29 +746,98 @@ export class GameEngine {
     }
   }
 
+  // 스테이지 지도 이미지를 한 번만 불러와 캔버스 크기에 맞춰 합성해 둔다 (로드 전에는 null)
+  getStageMapCanvas() {
+    const map = this.getStageConfig().map;
+    if (!map) return null;
+    this.mapCache = this.mapCache || {};
+    let entry = this.mapCache[map.src];
+    if (!entry) {
+      entry = { canvas: null };
+      this.mapCache[map.src] = entry;
+      const img = new Image();
+      img.onload = () => { entry.canvas = this.composeStageMap(img, map); };
+      img.src = map.src;
+    }
+    return entry.canvas;
+  }
+
+  composeStageMap(img, map) {
+    const W = this.canvas.width, H = this.canvas.height;
+    const s = W / map.imgW;                  // 가로 기준으로 채우고
+    const offY = (H - map.imgH * s) / 2;     // 위아래는 잘라낸다
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, offY, W, map.imgH * s);
+
+    // 원본에서 방향이 잘못 그려진 화살표를 주변 통로 색으로 덮고 올바른 방향으로 다시 그린다
+    (map.fixArrows || []).forEach(a => {
+      const sx = Math.round(a.sample[0] * s), sy = Math.round(a.sample[1] * s + offY);
+      const d = g.getImageData(sx - 3, sy - 3, 6, 6).data;
+      let r = 0, gr = 0, b = 0;
+      for (let i = 0; i < d.length; i += 4) { r += d[i]; gr += d[i + 1]; b += d[i + 2]; }
+      const n = d.length / 4;
+      g.fillStyle = `rgb(${Math.round(r / n)},${Math.round(gr / n)},${Math.round(b / n)})`;
+      const cx = a.x * s, cy = a.y * s + offY;
+      const horizontal = a.dir === 'left' || a.dir === 'right';
+      const pw = (horizontal ? 74 : 46) * s, ph = (horizontal ? 46 : 74) * s;
+      g.fillRect(cx - pw / 2, cy - ph / 2, pw, ph);
+
+      const dx = a.dir === 'left' ? -1 : a.dir === 'right' ? 1 : 0;
+      const dy = a.dir === 'up' ? -1 : a.dir === 'down' ? 1 : 0;
+      const half = 27 * s, head = 15 * s, wid = 11 * s;
+      g.save();
+      g.translate(cx, cy);
+      g.fillStyle = '#4cff6b';
+      g.strokeStyle = '#4cff6b';
+      g.shadowColor = 'rgba(76,255,107,0.9)';
+      g.shadowBlur = 8;
+      g.lineWidth = 4 * s;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(-dx * half, -dy * half);
+      g.lineTo(dx * (half - head), dy * (half - head));
+      g.stroke();
+      g.beginPath();
+      g.moveTo(dx * half, dy * half);
+      g.lineTo(dx * (half - head) + dy * wid, dy * (half - head) + dx * wid);
+      g.lineTo(dx * (half - head) - dy * wid, dy * (half - head) - dx * wid);
+      g.closePath();
+      g.fill();
+      g.restore();
+    });
+    return c;
+  }
+
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // 1. 맵 경로 그리기 (S자 커브)
-    this.ctx.strokeStyle = '#4a5568';
-    this.ctx.lineWidth = 40;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-    this.ctx.beginPath();
-    this.path.forEach((p, i) => {
-      if (i === 0) this.ctx.moveTo(p[0], p[1]);
-      else this.ctx.lineTo(p[0], p[1]);
-    });
-    this.ctx.stroke();
+    // 1. 맵 그리기: 스테이지에 지도 이미지가 있으면 그것을, 없으면 기본 경로선을 그린다
+    const mapCanvas = this.getStageMapCanvas();
+    if (mapCanvas) {
+      this.ctx.drawImage(mapCanvas, 0, 0);
+    } else if (!this.getStageConfig().map) {
+      this.ctx.strokeStyle = '#4a5568';
+      this.ctx.lineWidth = 40;
+      this.ctx.lineCap = 'round';
+      this.ctx.lineJoin = 'round';
+      this.ctx.beginPath();
+      this.path.forEach((p, i) => {
+        if (i === 0) this.ctx.moveTo(p[0], p[1]);
+        else this.ctx.lineTo(p[0], p[1]);
+      });
+      this.ctx.stroke();
 
-    this.ctx.strokeStyle = '#cbd5e0';
-    this.ctx.lineWidth = 4;
-    this.ctx.stroke();
+      this.ctx.strokeStyle = '#cbd5e0';
+      this.ctx.lineWidth = 4;
+      this.ctx.stroke();
 
-    // 성(Gate) 아이콘
-    const gatePos = this.path[this.path.length - 1];
-    this.ctx.font = '32px sans-serif';
-    this.ctx.fillText('🏰', gatePos[0] - 20, gatePos[1] + 10);
+      // 성(Gate) 아이콘
+      const gatePos = this.path[this.path.length - 1];
+      this.ctx.font = '32px sans-serif';
+      this.ctx.fillText('🏰', gatePos[0] - 20, gatePos[1] + 10);
+    }
 
     // 1-1. 독가스 지역 그리기
     this.gasClouds.forEach(g => {

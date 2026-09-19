@@ -543,7 +543,7 @@ export const BIRD_TEMPLATES = {
 
   // --- 암시장 전용 새 (봉인된 알 / 사신 새의 알로만 획득 가능, 일반 알/씨앗 상자 획득 불가) ---
   market_bird: {
-    id: 'market_bird', name: '새', grade: GRADES.RARE, type: '균형형',
+    id: 'market_bird', name: '부유하는 새', grade: GRADES.RARE, type: '균형형',
     desc: '봉인된 알에서 가장 흔하게 나오는, 겉보기엔 평범한 새.',
     levels: [
       { level: 1, atk: 5, interval: 0.85, range: 130, cost: 0, effectDesc: '-' },
@@ -780,6 +780,13 @@ export const WEATHER_TYPES = {
   aurora: { id: 'aurora', name: '오로라', chance: 0.005, mutationId: 'aurora', bonusChance: 0.10, naturalDouble: true, icon: '🌌' }
 };
 
+// 암시장 등장 설정 (여기 값만 고치면 확률/주기/유지시간이 바뀜)
+export const BLACK_MARKET_CONFIG = {
+  appearChance: 0.10,   // 판정 때마다 등장할 확률 (10%)
+  checkInterval: 60,    // 등장 여부를 굴리는 주기 (초)
+  duration: 180         // 한 번 등장하면 유지되는 시간 (초)
+};
+
 // 암시장 판매 품목
 export const BLACK_MARKET_ITEMS = {
   weather_changer: {
@@ -796,7 +803,7 @@ export const BLACK_MARKET_ITEMS = {
   },
   sealed_egg: {
     id: 'sealed_egg', name: '봉인된 알', icon: '🥚', price: 70,
-    desc: '암시장 전용 새 1마리를 즉시 획득합니다. (새 66% / 어둠의 새 20% / 부서진 새 13.5% / 봉인된 새 0.5%)'
+    desc: '암시장 전용 새 1마리를 즉시 획득합니다. (부유하는 새 66% / 어둠의 새 20% / 부서진 새 13.5% / 봉인된 새 0.5%)'
   },
   free_regurgitate_ticket: {
     id: 'free_regurgitate_ticket', name: '무료 토해내기권', icon: '🎫', price: 60,
@@ -804,7 +811,7 @@ export const BLACK_MARKET_ITEMS = {
   },
   ruin_fragment: {
     id: 'ruin_fragment', name: '유적 조각', icon: '🗿', price: 100,
-    desc: '정체를 알 수 없는 고대의 조각. (용도는 추후 업데이트 예정)'
+    desc: '이름 없는 고대 문명의 잔재. 지금도 힘을 발산하고 있습니다.'
   },
   death_feed_item: {
     id: 'death_feed_item', name: '죽음의 모이', icon: '💀', price: 1000,
@@ -818,6 +825,13 @@ export const BLACK_MARKET_ITEMS = {
 
 // 암시장 전용 재화 (스테이지 클리어 시 확률적으로 드롭)
 export const STRANGE_GEM = { id: 'strangeGem', name: '이상한 보석', icon: '💜', color: '#a855f7' };
+
+// 업적 목록 — birdId를 보유하면 달성 (조건이 늘어나면 check 함수만 바꾸면 됨)
+export const ACHIEVEMENTS = [
+  { id: 'reaper_seven_years', name: '7년 남으셨습니다', desc: '사신 새를 획득하세요.', icon: '💀', birdId: 'reaper_bird' },
+  { id: 'time_recorder', name: '시간의 기록자', desc: '영원한 새를 획득하세요.', icon: '⏳', birdId: 'eternal_bird' },
+  { id: 'sealed_power', name: '봉인된 힘', desc: '봉인된 새를 획득하세요.', icon: '⛓️', birdId: 'sealed_bird' }
+];
 
 // 스테이지별 이상한 보석 드롭 구성표
 export const STAGE_GEM_DROPS = {
@@ -1001,6 +1015,7 @@ export const STAGES = {
     id: 1,
     name: '파일럿 스테이지',
     badge: 'STAGE 1',
+    island: '달걀섬',
     desc: '기초 방어 훈련장입니다. 새를 배치해 25웨이브를 막아내고 성을 지켜내세요!',
     waveConfig: WAVE_CONFIG,
     hpMult: 1.0,
@@ -1013,12 +1028,27 @@ export const STAGES = {
     id: 2,
     name: '정글 전초기지',
     badge: 'STAGE 2',
+    island: '달걀섬',
     desc: '한층 거칠어진 몬스터들이 기다립니다. 더 강한 편성으로 25웨이브를 돌파하세요!',
     waveConfig: WAVE_CONFIG_STAGE2,
     hpMult: 1.6,
+    // 지도 이미지(assets/maps/stage2.jpg, 1248x832)를 캔버스(800x480)에 가로 기준으로 채우고 위아래를 잘라 맞춘 좌표
     path: [
-      [0, 80], [200, 80], [200, 260], [400, 260], [400, 80], [600, 80], [600, 340], [800, 340]
+      [67, 236], [214, 236], [214, 135], [319, 135], [319, 53], [490, 53],
+      [490, 217], [476, 230], [476, 319], [311, 319], [311, 400], [660, 400], [660, 249], [712, 249]
     ],
+    map: {
+      src: 'assets/maps/stage2.jpg', imgW: 1248, imgH: 832,
+      // 원본 이미지에서 진행 방향이 반대로 그려진 화살표 (이미지 좌표, dir: 올바른 방향)
+      // sample: 지울 때 채울 색을 가져올 깨끗한 통로 위치
+      fixArrows: [
+        { x: 560, y: 540, dir: 'left', sample: [630, 545] },
+        { x: 705, y: 540, dir: 'left', sample: [630, 545] },
+        { x: 485, y: 600, dir: 'down', sample: [487, 560] },
+        { x: 1027, y: 510, dir: 'up', sample: [1027, 570] },
+        { x: 1027, y: 625, dir: 'up', sample: [1027, 570] }
+      ]
+    },
     unlockRequires: 1 // 1스테이지 클리어 필요
   }
 };
@@ -1076,6 +1106,8 @@ const DEFAULT_STATE = {
   },
   // 암시장에서 구매한 "무료 토해내기권" 보유 개수 (다음 토해내기 비용 면제)
   freeRegurgitateTickets: 0,
+  // 달성한 업적 ({ [achievementId]: 달성 시각 })
+  achievements: {},
 
   // 몬스터 도감 단계 (유형별 encounter count)
   monsterCodex: {},
@@ -1101,8 +1133,29 @@ export class StateManager {
   }
 
   notify() {
+    this.checkAchievements();
     this.listeners.forEach(fn => fn(this.state));
     this.save();
+  }
+
+  // 새로 달성한 업적을 기록하고 id 목록을 pendingAchievements에 쌓아둔다 (알림은 UI가 소비)
+  checkAchievements() {
+    if (!this.state.achievements || this.state.achievements === DEFAULT_STATE.achievements) {
+      this.state.achievements = {};
+    }
+    const owned = new Set((this.state.ownedBirds || []).filter(b => b.count > 0).map(b => b.birdId));
+    ACHIEVEMENTS.forEach(a => {
+      if (!this.state.achievements[a.id] && owned.has(a.birdId)) {
+        this.state.achievements[a.id] = Date.now();
+        (this.pendingAchievements = this.pendingAchievements || []).push(a.id);
+      }
+    });
+  }
+
+  consumeNewAchievements() {
+    const list = this.pendingAchievements || [];
+    this.pendingAchievements = [];
+    return list;
   }
 
   load() {
